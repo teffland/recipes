@@ -1,0 +1,81 @@
+Relational Schema
+################################################
+
+
+CREATE TABLE users (
+    id              serial PRIMARY KEY,
+    email           varchar(128) NOT NULL UNIQUE,
+    first_name      varchar(128) NOT NULL,
+    last_name       varchar(128) NOT NULL,
+    hashed_password varchar(128) NOT NULL,
+    icon_code       smallint NOT NULL DEFAULT 0,
+    created_at      timestamp NOT NULL,
+    last_login_at   timestamp NOT NULL
+);
+
+CREATE TABLE recipes (
+    id                  bigserial PRIMARY KEY,
+    name                varchar(128) NOT NULL,
+    yield               varchar(32),
+    preparation_time    varchar(32),
+    yield               varchar(32),
+    description         text,
+    photo_url           varchar(256) NOT NULL,
+    creator_id          integer NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    created_at          timestamp NOT NULL
+);
+
+CREATE TABLE ratings (
+    user_id             integer REFERENCES users(id) ON DELETE CASCADE,
+    recipe_id           bigint REFERENCES recipes(id) ON DELETE CASCADE,
+    rating              smallint CHECK (rating IN (1,2,3,4,5)),
+    PRIMARY KEY (user_id, recipe_id)
+);
+
+CREATE TABLE saved (
+    user_id             integer REFERENCES users(id) ON DELETE CASCADE,
+    recipe_id           bigint REFERENCES recipes(id) ON DELETE CASCADE,
+    saved_at            timestamp NOT NULL,
+    PRIMARY KEY (user_id, recipe_id)
+);
+
+CREATE TABLE tags (
+    id                  serial PRIMARY KEY,
+    name                varchar(128) NOT NULL
+);
+
+CREATE TABLE recipes_tags (
+    recipe_id           bigint REFERENCES recipes(id) ON DELETE CASCADE,
+    tag_id         integer REFERENCES tags(id) ON DELETE CASCADE,
+    PRIMARY KEY (recipe_id, tag_id)
+);
+
+CREATE TABLE ingredients (
+    id                  bigserial PRIMARY KEY,
+    name                varchar(128) NOT NULL
+);
+
+CREATE TABLE ingredients_recipes (
+    ingredient_id       bigint REFERENCES ingredients(id) ON DELETE CASCADE,
+    recipe_id           bigint REFERENCES recipes(id) ON DELETE CASCADE,
+    quantity            varchar(32),
+    unit                varchar(128),
+    comment             varchar(128),
+    PRIMARY KEY (ingredient_id, recipe_id)
+);
+
+CREATE TABLE steps (
+    recipe_id           bigint REFERENCES recipes(id) ON DELETE CASCADE,
+    number              smallint NOT NULL CHECK( number > 0),
+    instructions        text NOT NULL,
+    PRIMARY KEY (recipe_id, number)  
+);
+
+CREATE TABLE comments (
+    id                  bigserial PRIMARY KEY,
+    user_id             integer REFERENCES users(id) ON DELETE CASCADE,
+    recipe_id           bigint REFERENCES recipes(id) ON DELETE CASCADE,
+    text                text NOT NULL,
+    created_at          timestamp NOT NULL,
+    updated_at          timestamp NOT NULL  
+);
