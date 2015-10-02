@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+<title>Cookumbia</title>
+<head>
+  <link href="/static/bootstrap.min.css" rel="stylesheet" media="screen">
+  <link href="/static/layout.css" rel="stylesheet" media="screen">
+</head>
+<body>
+  <header>
+    <div class='container'>
+      <h1>Cooking @ Columbia</h1>
+      <p class='lead'>Got recipes?</p>
+    </div>
+  </header>
+  <div class="container">
+    <nav class="navbar navbar-default">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="#">
+          <img alt="Brand" src="/static/columbia.png">
+        </a>
+      </div>
+      <ul class="nav navbar-nav">
+          <li {% if request.endpoint == 'recipes' %} class='active' {% endif %}>
+              <a href="{{ url_for('recipes') }}">Recipes</a>
+          </li>
+      </ul>
+      <ul class="nav navbar-nav pull-right">
+          <li {% if request.endpoint == 'account' %} class='active' {% endif %}>
+              <a href="{{ url_for('account') }}">Account</a>
+          </li>
+          <li>
+              <a href="{{ url_for('logout') }}">Log out</a>
+          </li>
+      </ul>
+    </nav>
+
+    {% for message in get_flashed_messages() %}
+      <div class='alert'>
+        <button type="button" class="close" data-dismiss="alert">
+            &times;
+        </button>
+        {{ message }}
+      </div>
+      <div class=flash>{{ message }}</div>
+    {% endfor %}
+
+    {% block body %}{% endblock %}
+  </div>
+</body>
+</html>
+

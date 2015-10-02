@@ -20,3 +20,18 @@ from cooking import app
 def hello(name=None):
     return render_template('hello.html', name=name)
 
+@app.route('/login/')
+def login():
+    return render_template('login.html')
+
+@app.route('/logout/')
+def logout():
+    return ''    
+
+@app.route('/recipes/')
+def recipes():
+    return ''    
+
+@app.route('/account/')
+def account():
+    return ''  
