@@ -1,0 +1,142 @@
+{% extends "layout.html" %}
+{% block body %}
+  <div class="row">  
+    <div class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
+      <h2>
+        {{recipe.name}}
+        <span class="glyphicon glyphicon-heart{{ '-empty' if not recipe.is_favorite else '' }} favorite-icon-detail" aria-hidden="true" favorite-link="{{url_for('favorite', recipe_id=recipe.id)}}" unfavorite-link="{{url_for('unfavorite', recipe_id=recipe.id)}}"></span>
+      </h2>
+      <p>By {{recipe.creator.first_name + ' ' + recipe.creator.last_name}}</p>
+      <div class="row">
+        <p class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+          {% if recipe.preparation_time %} 
+            <span class="glyphicon glyphicon-time" aria-hidden="true"></span> {{recipe.preparation_time}}<br>
+          {% endif %}
+          {% if recipe.servings %} 
+            <span class="glyphicon glyphicon-user" aria-hidden="true"></span> {{recipe.servings}}<br>
+          {% endif %}
+        </p>
+        <p class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+          {% if recipe.nutritional_info %} 
+            <span data-toggle="tooltip" data-placement="right" data-html="false" title="{{recipe.nutritional_info}}" style="white-space: nowrap;">
+              <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> Nutritional info
+            </span>
+          {% endif %}
+        </p>
+      </div>
+      <div class="panel panel-default">
+        <div class="panel-body">
+          <h4>Rate this Recipe: 
+          {% for i in range(1,6) %}
+            <span class="glyphicon rate-star rating-{{i}} {{ 'glyphicon-star' if recipe.rating != None and recipe.rating >= i else 'glyphicon-star-empty' }}" rating="{{i}}" aria-hidden="true"></span>
+          {% endfor %}</h4>
+          <p>{{recipe.rating_count}} ratings - {{recipe.avg_rating}}/5.0 average rating</p>
+          <p>{{recipe.favorite_count}} users favorited this recipe</p>
+        </div>
+      </div>
+      {% if recipe.category_count > 0 %}
+        <div class="panel panel-default">
+          <div class="panel-heading">Categories</div>
+          <div class="panel-body">
+            {% for category in recipe.categories %}
+              <span class="label {{['label-primary', 'label-success', 'label-info', 'label-warning'][loop.index-1 % 4]}}">{{category.name}}</span>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-8 col-lg-8">
+      <img class="recipe-thumb" src="/static/images/secret_recipe.jpg">
+    </div>
+  </div>
+
+  <div class="row">  
+    <div class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
+      <div class="panel panel-primary">
+        <div class="panel-heading">
+          <h3 class="panel-title">Ingredients</h3>
+        </div>
+        <div class="panel-body">
+          {% for ingredient in recipe.ingredients_recipes %}
+            <p>{{ingredient.description()}}</p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-8 col-lg-8">
+      <div class="panel panel-primary">
+        <div class="panel-heading">
+          <h3 class="panel-title">Instructions</h3>
+        </div>
+        <ul class="list-group">
+          {% for step in recipe.steps %}
+            <li class="list-group-item">
+              <h4>Step {{step.number}}{% if step.title %}: {{step.title}}{% endif %}</h4>
+              <p>{{step.instructions}}</p>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+  
+<script>
+$(function(){
+  $("[data-toggle=\"tooltip\"]").tooltip();
+
+  rateOnclick = function(event) {
+    base_url = "{{url_for('rate', recipe_id=recipe.id, rating='<rating>')}}"
+    rating = $(this).attr('rating')
+    new_url = base_url.replace('%3Crating%3E', rating)
+
+    $.ajax({
+      url: new_url,
+      method: 'PUT',
+      context: this,
+      success: function() {
+        rating_num = Number(rating)
+        for (i=1; i<=5; i++) {
+          star = $('.rating-' + String(i))
+          if (i <= rating_num) {
+            star.removeClass('glyphicon-star-empty')
+            star.addClass('glyphicon-star')
+          } else {
+            star.removeClass('glyphicon-star')
+            star.addClass('glyphicon-star-empty')
+          }
+        } 
+      }
+    });
+  }
+  $('.rate-star').click(rateOnclick);
+
+  favoriteOnclick = function(event) {
+    if ($(this).hasClass('glyphicon-heart-empty')) {
+      $.ajax({
+        url: $(this).attr('favorite-link'),
+        method: 'PUT',
+        context: this,
+        success: function() {
+          $(this).removeClass('glyphicon-heart-empty')
+          $(this).addClass('glyphicon-heart')
+        }
+      });
+    } else {
+      $.ajax({
+        url: $(this).attr('unfavorite-link'),
+        method: 'PUT',
+        context: this,
+        success: function() {
+          $(this).removeClass('glyphicon-heart')
+          $(this).addClass('glyphicon-heart-empty')
+        }
+      });
+    }
+    event.preventDefault();
+  }
+  $('.favorite-icon-detail').click(favoriteOnclick);
+
+});
+</script>
+
+{% endblock %}

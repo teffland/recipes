@@ -1,7 +1,7 @@
 from sqlalchemy.types import *
 from sqlalchemy import Table, Column, event, ForeignKey
 from sqlalchemy.orm import mapper, relationship, backref
-from cooking.orm_setup import metadata, db_session
+from cooking.orm_setup import metadata, db_session, engine
 import datetime
 import hashlib
 from models.recipe import Recipe, recipes
@@ -28,9 +28,52 @@ class User(object):
         if password:
             sha = hashlib.sha384()
             sha.update(password)
-            return sha.digest().encode('base64')
+            return sha.digest().encode('base64')[0:-1]
         else:
             return None
+
+    @classmethod
+    def load_user(cls, email):
+        attributes = ['id','email','first_name','last_name','icon_code','created_at','last_login_at','hashed_password']
+        result = engine.execute("SELECT %s FROM users WHERE email='%s';" % (",".join(attributes), email))
+        
+        attrs = None
+        for values in result:
+            attrs = {attributes[i]:value for i, value in enumerate(values) }
+        
+        if not attrs:
+            return None
+
+        user = cls.create_from_dict(attrs)
+        return user
+
+    @classmethod
+    def load_user_by_id(cls, id):
+        attributes = ['id','email','first_name','last_name','icon_code','created_at','last_login_at','hashed_password']
+        result = engine.execute("SELECT %s FROM users WHERE id=%i;" % (",".join(attributes), id))
+        
+        attrs = None
+        for values in result:
+            attrs = {attributes[i]:value for i, value in enumerate(values) }
+        
+        if not attrs:
+            return None
+
+        user = cls.create_from_dict(attrs)
+        return user
+
+    @classmethod
+    def check_if_authentic(cls, email, password):
+        result = engine.execute("SELECT email FROM users WHERE email='%s' \
+            AND hashed_password='%s';" % (email, cls.hash_password(password)))
+        return ([email[0] for email in result] + [None])[0]
+
+    @classmethod
+    def create_from_dict(cls, attrs):
+        obj = cls()
+        for attr, val in attrs.items():
+            setattr(obj,attr,val)
+        return obj
 
     def __repr__(self):
         return '<User id=%s:email=%r>' % (self.id,self.email)

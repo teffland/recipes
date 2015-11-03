@@ -1,18 +1,73 @@
 {% extends "layout.html" %}
 {% block body %}
   <div class="row">
-    <div class='col-xs-12 col-md-6'>
-      <h2>Login</h2>
-      {% if error %}<p class=error><strong>Error:</strong> {{ error }}{% endif %}
-      <form action="{{ url_for('login') }}" method=post>
-        <dl>
-          <dt>Username:
-          <dd><input type=text name=username>
-          <dt>Password:
-          <dd><input type=password name=password>
-          <dd><input type=submit value=Login>
-        </dl>
-      </form>
+    <div class='col-xs-12 col-md-12'>
+      <div id="home_jumbotron" class="jumbotron col-xs-12">
+        <p>This is a class project for COMS W4111 Introduction to Databases.</p>
+        <p>Students: Henrique Gubert, Thomas Effland</p>
+        <p><a class="btn btn-lg btn-primary" href="#" role="button" id="login_button" data-toggle="collapse" data-target="#login_form" aria-expanded="false" aria-controls="login_form">Login now!</a></p>
+      </div> 
+      
+      <div id='login_form' class="panel col-xs-3 {% if not error %} collapse {% endif %} panel-collapse">
+        <form action="{{ url_for('login') }}" method=post>
+          <div class="form-group has-feedback">
+            <label for="email">Email</label>
+            <span class="link-blue" data-toggle="tooltip" data-placement="right" data-html="true" title="Try: abc@abc.com"><input type="text" class="form-control" name="email" id='email_field'></span>
+            <span class="glyphicon glyphicon-ok form-control-feedback hidden" aria-hidden="true"></span>
+          </div>
+          <div class="form-group has-feedback">
+            <label for="password">Password</label>
+            <span data-toggle="tooltip" data-placement="right" data-html="false" trigger='focus' title="Try: qwerty"><input type="password" class="form-control" name="password" id='password_field'></span>
+            <span class="glyphicon glyphicon-ok form-control-feedback hidden" aria-hidden="true"></span>
+          </div>
+          <button type="submit" class="btn btn-primary">Login</button>
+        </form>  
+      </div>
     </div>
   </div>
+
+<script>
+$(function() {
+  $("[data-toggle=\"tooltip\"]").tooltip();
+
+  var emailSuccess = false;
+  $('#email_field').keyup(function(){
+      if (!emailSuccess) {
+        if ($(this).val() == 'abc@abc.com') {
+          $(this).parent().parent().find('.form-control-feedback').removeClass('hidden')
+          $(this).parent().parent().addClass('has-success')
+          emailSuccess = true;
+        }
+      } else {
+        if ($(this).val() != 'abc@abc.com') {
+          $(this).parent().parent().find('.form-control-feedback').addClass('hidden')
+          $(this).parent().parent().removeClass('has-success')
+          emailSuccess = false;
+        }
+      }
+  });  
+
+  var passSuccess = false;
+  $('#password_field').keyup(function(){
+      if (!emailSuccess) {
+        if ($(this).val() == 'qwerty') {
+          $(this).parent().parent().find('.form-control-feedback').removeClass('hidden')
+          $(this).parent().parent().addClass('has-success')
+          emailSuccess = true;
+        }
+      } else {
+        if ($(this).val() != 'qwerty') {
+          $(this).parent().parent().find('.form-control-feedback').addClass('hidden')
+          $(this).parent().parent().removeClass('has-success')
+          emailSuccess = false;
+        }
+      }
+  });  
+
+  
+
+  
+});
+</script>
+
 {% endblock %}

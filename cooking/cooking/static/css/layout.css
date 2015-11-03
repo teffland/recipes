@@ -1,0 +1,75 @@
+
+header {
+  background: #020031; /* Old browsers */
+  background: -moz-linear-gradient(left,  #020031 0%, #6d3353 100%); /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, right top, color-stop(0%,#020031), color-stop(100%,#6d3353)); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(left,  #020031 0%,#6d3353 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(left,  #020031 0%,#6d3353 100%); /* Opera 11.10+ */
+  background: -ms-linear-gradient(left,  #020031 0%,#6d3353 100%); /* IE10+ */
+  background: linear-gradient(to right,  #020031 0%,#6d3353 100%); /* W3C */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#020031', endColorstr='#6d3353',GradientType=1 ); /* IE6-9 */
+  color: white;
+  padding: 20px 0;
+}
+
+h1 { font-size: 60px; }
+p.lead { margin-bottom: 0px; }
+
+
+#home_jumbotron{
+  margin-bottom: 0px;
+  border-radius: 12px;
+  padding-top: 30px;
+  padding-bottom: 20px;
+}
+
+#login_form {
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  margin-left: 48px;
+  background-color: #6f5499;
+  background-image: linear-gradient(to bottom, #eee 0,#ccc 100%);
+}
+
+a.nounderline {
+  text-decoration: none;
+}
+
+.icon-right {
+  float: right;
+  margin-right: -6px;
+}
+
+.favorite-icon {
+  top:-12px;
+  right:-14px;
+  font-size: 20pt;
+}
+
+.favorite-icon-detail.glyphicon-heart-empty {
+  color:#ccc;
+}
+.favorite-icon-detail:hover {
+  color:#333;
+  cursor:pointer;
+}
+
+.rate-star:hover {
+  cursor:pointer;
+}
+
+.recipe-thumb {
+  padding-left:26px;
+}
+
+.unfavorited:not(:hover) {
+  color:rgba(255, 255, 255, 0);
+}
+
+.tooltip-inner {
+    max-width: 350px;
+    /* If max-width does not work, try using width instead */
+    width: 350px; 
+}

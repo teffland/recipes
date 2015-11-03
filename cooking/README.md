@@ -1,3 +1,11 @@
+# Todo List
+- Sanizize SQL queries
+- Create the account page (with the option to edit password)
+- Add comments to the recipe pages
+- Create recipe page
+- Load the data 
+- Store recipe images
+
 # Cooking Web App
 
 Flask web app of the recipe sharing website, being developed as Project 1 for the Databases class at Columbia.

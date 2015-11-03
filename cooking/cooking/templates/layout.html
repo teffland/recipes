@@ -1,51 +1,110 @@
 <!doctype html>
 <html>
-<title>Cookumbia</title>
+<title>Cooking @ Columbia</title>
 <head>
-  <link href="/static/bootstrap.min.css" rel="stylesheet" media="screen">
-  <link href="/static/layout.css" rel="stylesheet" media="screen">
+  <link href="/static/css/bootstrap.min.css" rel="stylesheet" media="screen">
+  <link href="/static/css/layout.css" rel="stylesheet" media="screen">
+  <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+  <script src="/static/js/bootstrap.min.js"></script>
 </head>
 <body>
   <header>
     <div class='container'>
       <h1>Cooking @ Columbia</h1>
-      <p class='lead'>Got recipes?</p>
+      <p class='lead' style='padding-left:5px;'>Got recipes?</p>
     </div>
   </header>
   <div class="container">
+    
+    
     <nav class="navbar navbar-default">
       <div class="navbar-header">
-        <a class="navbar-brand" href="#">
-          <img alt="Brand" src="/static/columbia.png">
-        </a>
+        <div class="navbar-brand" href="#">
+          <img alt="Brand" src="/static/images/columbia.png">
+        </div>
       </div>
-      <ul class="nav navbar-nav">
-          <li {% if request.endpoint == 'recipes' %} class='active' {% endif %}>
-              <a href="{{ url_for('recipes') }}">Recipes</a>
-          </li>
-      </ul>
-      <ul class="nav navbar-nav pull-right">
-          <li {% if request.endpoint == 'account' %} class='active' {% endif %}>
-              <a href="{{ url_for('account') }}">Account</a>
-          </li>
-          <li>
-              <a href="{{ url_for('logout') }}">Log out</a>
-          </li>
-      </ul>
+
+      {% if g.current_user %}
+        <ul class="nav navbar-nav">
+            <li {% if request.endpoint == 'recent_recipes' %} class='active' {% endif %}>
+                <a href="{{ url_for('recent_recipes') }}">New Recipes</a>
+            </li>
+        </ul>
+        <ul class="nav navbar-nav">
+            <li {% if request.endpoint == 'highest_rated_recipes' %} class='active' {% endif %}>
+                <a href="{{ url_for('highest_rated_recipes') }}">Highest Rated</a>
+            </li>
+        </ul>
+        <ul class="navbar-form navbar-left" role="search">
+          <div class="form-group">
+            <input type="text" class="form-control" placeholder="Search" id='search-input' value="{{ search_string if search_string else '' }}">
+          </div>
+          <button type="submit" class="btn btn-default" id='search-button' url="{{ url_for('search_results',query='<query>') }}">Search</button>
+        </ul>
+        <ul class="nav navbar-nav pull-right">
+            <li {% if request.endpoint == 'favorites' %} class='active' {% endif %}>
+                <a href="{{ url_for('favorites') }}"><span class="glyphicon glyphicon-heart" aria-hidden="true"></span> Favorites</a>
+            </li>
+            <li {% if request.endpoint == 'account' %} class='active' {% endif %}>
+                <a href="{{ url_for('account') }}">Account</a>
+            </li>
+            <li>
+                <a href="{{ url_for('logout') }}">Log out</a>
+            </li>
+        </ul>
+      {% endif %}
     </nav>
 
     {% for message in get_flashed_messages() %}
-      <div class='alert'>
+      <div class='alert alert-info'>
         <button type="button" class="close" data-dismiss="alert">
             &times;
         </button>
         {{ message }}
       </div>
-      <div class=flash>{{ message }}</div>
     {% endfor %}
+
+    {% if error %}
+      <div class='alert alert-danger'>
+        <button type="button" class="close" data-dismiss="alert">
+            &times;
+        </button>
+        {{ error }}
+      </div>
+    {% endif %}
+
+    {% if success %}
+      <div class='alert alert-success'>
+        <button type="button" class="close" data-dismiss="alert">
+            &times;
+        </button>
+        {{ success }}
+      </div>
+    {% endif %}
 
     {% block body %}{% endblock %}
   </div>
+
+<script type="text/javascript">
+$(function() {
+
+  $('#search-input').keyup(function (event) {
+    if (event.keyCode == 13) {
+      url_base = $('#search-button').attr('url')
+      query = $(this).val().split(' ').join('+')
+      new_url = url_base.replace('%3Cquery%3E', query)
+      window.location = new_url;
+    }
+  });
+
+  $('#search-button').click(function() {
+    url_base = $(this).attr('url')
+    query = $('#search-input').val().split(' ').join('+')
+    new_url = url_base.replace('%3Cquery%3E', query)
+    window.location = new_url;
+  });
+});
+</script>
 </body>
 </html>
 

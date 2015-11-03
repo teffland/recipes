@@ -4,6 +4,7 @@ from sqlalchemy.orm import mapper, relationship, backref
 from cooking.orm_setup import metadata, db_session
 import datetime
 from models.ingredients_recipes import IngredientRecipe
+from collections import defaultdict
 
 
 class Ingredient(object):
@@ -15,6 +16,7 @@ class Ingredient(object):
 
     def __repr__(self):
         return '<Ingredient name=%i>' % (self.name)
+
 
 
 ingredients = Table('ingredients', metadata,

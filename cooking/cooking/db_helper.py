@@ -77,5 +77,10 @@ def db_seed():
 
     db_session.close()
 
-
+def db_seed2():
+    with closing(db_connect()) as db_connection:
+        with app.open_resource('seed.sql', mode='r') as f:
+            db_connection.cursor().execute(f.read())
+        db_connection.commit()
+        db_connection.close()
 

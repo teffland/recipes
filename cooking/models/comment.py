@@ -20,14 +20,14 @@ class Comment(object):
 def before_insert_listener(mapper, connection, target):
     target.created_at = datetime.datetime.now()
     target.updated_at = datetime.datetime.now() 
-event.listen(Saved, 'before_insert', before_insert_listener)
+event.listen(Comment, 'before_insert', before_insert_listener)
 
 def before_update_listener(mapper, connection, target):
     target.updated_at = datetime.datetime.now() 
-event.listen(Saved, 'before_update', before_update_listener)
+event.listen(Comment, 'before_update', before_update_listener)
 
 comments = Table('comments', metadata,
-    Column('id', BIGINT, primary_key=True)
+    Column('id', BIGINT, primary_key=True),
     Column('user_id', BIGINT, ForeignKey('users.id', ondelete="CASCADE")),
     Column('recipe_id', BIGINT, ForeignKey('recipes.id', ondelete="CASCADE")),
     Column('text', TEXT),
