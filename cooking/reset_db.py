@@ -1,4 +1,6 @@
 from cooking import db_helper
 
+print "INITIALIZING DB SCHEMA"
 db_helper.db_init()
-db_helper.db_seed2()
+print "LOADING INITIAL DATA"
+db_helper.db_seed3()

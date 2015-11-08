@@ -1,10 +1,10 @@
 # Todo List
-- Sanizize SQL queries
-- Create the account page (with the option to edit password)
-- Add comments to the recipe pages
-- Create recipe page
-- Load the data 
-- Store recipe images
+- []Sanizize SQL queries
+- []Create the account page (with the option to edit password)
+- []Add comments to the recipe pages
+- []Create recipe page
+- [X]Load the data 
+- [X]Store recipe images
 
 # Cooking Web App
 

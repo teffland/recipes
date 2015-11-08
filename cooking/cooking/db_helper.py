@@ -84,3 +84,103 @@ def db_seed2():
         db_connection.commit()
         db_connection.close()
 
+from datetime import datetime
+def format_timestamp(date):
+    TIMESTAMP_FORMAT = '%Y-%m-%d %H:%M:%S'
+    return datetime.strftime(date, TIMESTAMP_FORMAT)
+
+from hashlib import sha256
+import urllib
+def download_photo(url):
+    try:
+        photo_hash = sha256(url).hexdigest()
+        localname = photo_hash+".jpg"
+        urllib.urlretrieve(url, localname)
+        return localname
+    except:
+        return "default.jpg"
+
+import numpy as np
+def get_random_nutritional_info():
+    options = ["Eh it's not too good.",
+               "This thing is a super food!",
+               "Chances of quadruple bypass after eating this are 50/50...",
+               "Pretty average I guess.",
+               "Freakin awesome!"
+              ]
+    choice = int(np.floor(np.random.rand()*len(options)))
+    return options[choice] + " (NOTE: This was randomly generated)"
+
+import json
+def db_seed3():
+    conn = db_connect()
+    cur = conn.cursor()
+    # create the main user
+    user = {
+        'email' : "chef@goodfood.com",
+        'first_name': "Anthony",
+        'last_name': "Bourdain",
+        'hashed_password':sha256("ILoveCooking").hexdigest(),
+        'icon_code':1,
+        'created_at' : format_timestamp(datetime.now()),
+        'last_login_at' : format_timestamp(datetime.now())
+    }
+
+    cur.execute("""INSERT INTO users (email, first_name, last_name, 
+                                       hashed_password, icon_code, created_at, last_login_at)
+                VALUES (%(email)s, %(first_name)s, %(last_name)s, %(hashed_password)s, %(icon_code)s, 
+                        %(created_at)s, %(last_login_at)s)""", user)
+    cur.execute("SELECT id FROM users  WHERE email=%(email)s", {'email':user['email']})
+    user_id = cur.fetchone()
+
+    
+    print "CHEF ID: ", user_id
+    with open('data/recipe_data.json' ,'r') as f:
+        data = json.loads(f.read())
+
+    # load all of the ingredients
+    print "INSERTING ALL INGREDIENTS"
+    unique_ingredients = list(set([i['name'] for d in data for i in d['ingredients']]))
+    ingredients = [{'name':i} for i in unique_ingredients]
+    cur.executemany("""INSERT INTO ingredients (name) VALUES (%(name)s)""", ingredients)
+    
+    # load all of the categories
+    print "INSERTING ALL CATEGORIES"
+    unique_categories = list(set([ t['name'] for d in data for t in d['tags']]))
+    categories = [{'name':i} for i in unique_categories]
+    cur.executemany("""INSERT INTO categories (name) VALUES (%(name)s)""", categories)
+
+    # for each recipe, load it, get its id, then load its steps, ingredients, and categories
+    for r in data:
+        recipe = {
+            'name':r['name'],
+            'servings':r['yield'],
+            'preparation_time':r['preparation_time'],
+            'photo_file':download_photo(r['photo_url']),
+            'nutritional_info':r['description'],#get_random_nutritional_info(),
+            'creator_id':user_id,
+            'created_at':format_timestamp(datetime.now())
+        }
+        cur.execute("""INSERT INTO recipes (name, servings, preparation_time, photo_file, nutritional_info, creator_id, created_at)
+                       VALUES (%(name)s, %(servings)s, %(preparation_time)s, %(photo_file)s,
+                               %(nutritional_info)s, %(creator_id)s, %(created_at)s)""", recipe)
+        cur.execute("SELECT id FROM recipes ORDER BY id DESC LIMIT 1;")
+        recipe_id = cur.fetchone()
+        print "RECIPE NUM: ", recipe_id[0]
+
+        categories = [{'recipe_id':recipe_id, 'category_name':t['name']} for t in r['tags']]
+        cur.executemany("""INSERT INTO categories_recipes (recipe_id, category_name)
+                           VALUES (%(recipe_id)s, %(category_name)s)""", categories)
+        
+        steps = [ {'id':recipe_id, 'n':s['number'], 'instructions':s['instructions']} for s in r['steps'] ]
+        cur.executemany("""INSERT INTO steps (recipe_id, number, instructions)
+                           VALUES (%(id)s, %(n)s, %(instructions)s)""", steps)
+
+        ingredients = [{'name':i['name'], 'id':recipe_id, 'q':i['quantity'], 'u':i['unit'],\
+                        'comment':i['comment']} for i in r['ingredients'] ]
+        cur.executemany("""INSERT INTO ingredients_recipes (ingredient, recipe_id, quantity, unit, comment)
+                           VALUES (%(name)s, %(id)s, %(q)s, %(u)s, %(comment)s)""", ingredients)
+
+    conn.commit()
+    conn.close()
+    print "DONE"
