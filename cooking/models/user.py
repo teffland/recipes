@@ -64,8 +64,8 @@ class User(object):
 
     @classmethod
     def check_if_authentic(cls, email, password):
-        result = engine.execute("SELECT email FROM users WHERE email='%s' \
-            AND hashed_password='%s';", (email, cls.hash_password(password)))
+        result = engine.execute("SELECT email FROM users WHERE email=%s \
+            AND hashed_password=%s;", (email, cls.hash_password(password)))
         return ([email[0] for email in result] + [None])[0]
 
     @classmethod
