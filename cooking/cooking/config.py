@@ -6,6 +6,7 @@ class Config(object):
     SECRET_KEY = 'a90bd0b2640d62d434d35c51ba679f45e4cefb12a09cb10c'
     DB_USER = 'azureuser'
     DB_PASSWORD = 'T*eFfland93'
+    PHOTO_DIR = "cooking/media/photos/"
 
 class ProductionConfig(Config):
     DEBUG = False
