@@ -1,6 +1,7 @@
 import psycopg2
 from contextlib import closing
 from cooking import app
+from cooking.config import Config
 
 # function to connect to db
 def db_connect():
@@ -89,13 +90,13 @@ def format_timestamp(date):
     TIMESTAMP_FORMAT = '%Y-%m-%d %H:%M:%S'
     return datetime.strftime(date, TIMESTAMP_FORMAT)
 
-from hashlib import sha256
+from hashlib import sha384
 import urllib
 def download_photo(url):
     try:
-        photo_hash = sha256(url).hexdigest()
+        photo_hash = sha384(url).hexdigest()
         localname = photo_hash+".jpg"
-        urllib.urlretrieve(url, localname)
+        urllib.urlretrieve(url, Config.PhOTO_PATH+localname)
         return localname
     except:
         return "default.jpg"
@@ -120,7 +121,7 @@ def db_seed3():
         'email' : "chef@goodfood.com",
         'first_name': "Anthony",
         'last_name': "Bourdain",
-        'hashed_password':sha256("ILoveCooking").hexdigest(),
+        'hashed_password':sha384("ILoveCooking").digest().encode('base64')[0:-1],
         'icon_code':1,
         'created_at' : format_timestamp(datetime.now()),
         'last_login_at' : format_timestamp(datetime.now())

@@ -16,3 +16,5 @@ class DevelopmentConfig(Config):
     DEVELOPMENT = True
     DEBUG = True
     DATABASE = 'cooking_development'
+    HOST='0.0.0.0'
+    PORT =5000

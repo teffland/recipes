@@ -1,3 +1,6 @@
+# Question:
+I noticed you were using ```sha384("password").digest().encode('base64')[0:-1]``` for password hashing
+Why not just use ```sha384("password").hexdigest()``` ?
 # Todo List
 - []Sanizize SQL queries
 - []Create the account page (with the option to edit password)

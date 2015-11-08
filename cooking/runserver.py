@@ -1,2 +1,3 @@
 from cooking import app
-app.run()
+from cooking.config import DevelopmentConfig as cf
+app.run(host=cf.HOST, port=cf.PORT, debug=cf.DEBUG)
