@@ -20,11 +20,10 @@ class Ingredient(object):
 
 
 ingredients = Table('ingredients', metadata,
-    Column('id', BIGINT, primary_key=True),
-    Column('name', VARCHAR(128))
+    Column('name', VARCHAR(128), primary_key=True)
 )
 mapper(Ingredient, ingredients, properties={
-    'ingredients_recipes': relationship(IngredientRecipe, backref='ingredient')
+    'ingredients_recipes': relationship(IngredientRecipe, backref='ingredient_obj')
 })
 
 

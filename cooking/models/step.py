@@ -18,14 +18,13 @@ class Step(object):
 
     @classmethod
     def load_steps(cls, recipe_id):
-        attributes = ['number', 'title', 'instructions']
-        results = engine.execute("SELECT %s FROM steps WHERE recipe_id=%i ORDER BY number ASC" % (",".join(attributes), long(recipe_id)))
+        attributes = ['number', 'instructions']
+        results = engine.execute("SELECT %s FROM steps WHERE recipe_id=%s ORDER BY number ASC" % (",".join(attributes), '%s'), long(recipe_id))
         steps = []
         for result in results:
             step = Step()
             step.number = int(result[0])
-            step.title = result[1]
-            step.instructions = result[2]
+            step.instructions = result[1]
             steps.append(step)
 
         return steps
@@ -34,7 +33,6 @@ class Step(object):
 steps = Table('steps', metadata,
     Column('recipe_id', BIGINT, ForeignKey('recipes.id', ondelete="CASCADE")),
     Column('number', SmallInteger),
-    Column('title', VARCHAR(128)),
     Column('instructions', TEXT),
     PrimaryKeyConstraint('recipe_id', 'number')
 )
