@@ -202,3 +202,4 @@ def comment(recipe_id=None):
 def delete_comment(comment_id=None):
     if comment_id != None:
         Comment.delete_comment(comment_id, g.current_user.id)
+    return ''

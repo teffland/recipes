@@ -94,14 +94,17 @@ def format_timestamp(date):
 from hashlib import sha384
 import urllib
 def download_photo(url):
-    try:
-        photo_hash = sha384(url).digest().encode('base64')[0:-1]
-        localname = photo_hash+".jpg"
-        urllib.urlretrieve(url, Config.PHOTO_DIR+localname)
-        return localname
-    except:
-        print "\t NO PHOTO"
-        return "default.jpg"
+    #try:
+    #print Config.PHOTO_DIR
+    photo_hash = sha384(url).digest().encode('base64')[0:-1]
+    #print photo_hash.replace
+    localname = photo_hash.replace('/', '-')+".jpg"
+    print localname
+    urllib.urlretrieve(url, Config.PHOTO_DIR+localname)
+    return localname
+    #except:
+    #    print "\t NO PHOTO"
+    #    return "default.jpg"
 
 import numpy as np
 def get_random_nutritional_info():
@@ -236,7 +239,7 @@ def db_seed3():
 
     conn.commit()
     conn.close()
-
+    print "INSERTING RATINGS AND COMMENTS"
     for recipe_id in recipe_ids:
         # for each recipe, use a Bernoulli do define if the recipe should be rated/favorited or not
         if random.uniform(0,10) >= 2:
