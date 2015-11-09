@@ -60,6 +60,11 @@ a.nounderline {
   cursor:pointer;
 }
 
+.delete-comment-link:hover {
+  cursor:pointer;
+  color:#F33; 
+}
+
 .recipe-thumb {
   padding-left:26px;
 }
@@ -76,4 +81,17 @@ a.nounderline {
     max-width: 350px;
     /* If max-width does not work, try using width instead */
     width: 350px; 
+}
+
+.affix-top {
+  position: static;
+}
+
+.affix {
+  position: fixed;
+  top: 0;
+}
+
+.affix-bottom {
+  position: relative;
 }

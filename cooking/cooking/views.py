@@ -11,6 +11,7 @@ from models.saved import Saved
 from models.category import Category
 from models.ingredient import Ingredient
 from models.ingredients_recipes import IngredientRecipe
+from models.comment import Comment
 from timeit import default_timer as timer
 from psycopg2.extensions import adapt
 
@@ -171,4 +172,19 @@ def unfavorite(recipe_id=None):
 def rate(recipe_id=None, rating=None):
     if recipe_id != None and rating != None:
         Rating.rate(g.current_user, recipe_id, rating)
+    return ''
+
+@app.route('/comment/<recipe_id>', methods=['POST'])
+def comment(recipe_id=None):
+    if recipe_id != None and 'comment_text' in request.form and len(request.form['comment_text'].strip()) > 0:
+        Comment.create_comment(g.current_user, recipe_id, request.form['comment_text'].strip())
+        comment = Comment.load_last_comment(recipe_id)
+        return render_template('comment.html', comment=comment)
+    else:
+        return ''
+
+@app.route('/delete_comment/<comment_id>', methods=['DELETE'])
+def delete_comment(comment_id=None):
+    if comment_id != None:
+        Comment.delete_comment(comment_id, g.current_user.id)
     return ''
