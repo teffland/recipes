@@ -95,3 +95,11 @@ a.nounderline {
 .affix-bottom {
   position: relative;
 }
+
+.label-new-mine {
+  line-height: 1.4
+}
+
+.label-mine {
+  margin-top: 2px
+}
