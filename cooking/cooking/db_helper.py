@@ -1,11 +1,8 @@
 import psycopg2
 from contextlib import closing
 from cooking import app
-<<<<<<< HEAD
 from cooking.config import Config
-=======
 import random
->>>>>>> 89f222effea5bd89756882277d4ab396c347b54b
 
 # function to connect to db
 def db_connect():

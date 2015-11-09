@@ -62,22 +62,16 @@ a.nounderline {
   cursor:pointer;
 }
 
-<<<<<<< HEAD
 img.recipes-thumb {
   width:100%;
   height:200px;;
 }
 img.recipe-thumb {
   width:100%;
-=======
+}
 .delete-comment-link:hover {
   cursor:pointer;
   color:#F33; 
-}
-
-.recipe-thumb {
-  padding-left:26px;
->>>>>>> 89f222effea5bd89756882277d4ab396c347b54b
 }
 
 .recipe-panel {
@@ -94,8 +88,6 @@ img.recipe-thumb {
     width: 350px; 
 }
 
-<<<<<<< HEAD
-=======
 .affix-top {
   position: static;
 }
@@ -116,4 +108,3 @@ img.recipe-thumb {
 .label-mine {
   margin-top: 2px
 }
->>>>>>> 89f222effea5bd89756882277d4ab396c347b54b
