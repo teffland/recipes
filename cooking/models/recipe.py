@@ -143,6 +143,7 @@ class Recipe(object):
             recipe.ingredients_recipes = IngredientRecipe.load_ingredients(recipe.id)
             recipe.categories = Category.load_categories(recipe.id)
             recipe.category_count = len(recipe.categories)
+            recipe.comments = Comment.load_comments(recipe.id)
 
         return recipe
 

@@ -1,0 +1,9 @@
+<li class="list-group-item added-comment" style='display:none;'>
+  <h5>
+    <strong>{{comment.creator.name()}}</strong> <small>commented at {{comment.commented_at_string()}}</small>:
+    {% if comment.user_id == g.current_user.id %}
+      <span class="glyphicon glyphicon-remove-circle pull-right delete-comment-link" aria-hidden="true" link="{{url_for('delete_comment', comment_id=comment.id)}}"></span>
+    {% endif %}
+  </h5>
+  <p>{{comment.text}}</p>
+</li>

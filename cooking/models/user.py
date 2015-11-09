@@ -75,6 +75,9 @@ class User(object):
             setattr(obj,attr,val)
         return obj
 
+    def name(self):
+        return self.first_name + ' ' + self.last_name
+
     def __repr__(self):
         return '<User id=%s:email=%r>' % (self.id,self.email)
 

@@ -19,19 +19,20 @@
             {% if recipe.servings | trim | length > 0 %} 
               <span class="glyphicon glyphicon-user" aria-hidden="true"></span> {{recipe.servings | trim}}<br>
             {% endif %}
-            {% for i in range(1,6) %}
-              {% if recipe.round_rating >= i %}
-                <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
-              {% else %}
-                <span class="glyphicon glyphicon-star-empty" aria-hidden="true"></span>
-              {% endif %}
-            {% endfor %}
-            {% if recipe.round_rating != 0 %} {{recipe.avg_rating}} {% endif %}
-            {% if recipe.round_rating == 0 %}
-              <span class="label label-warning pull-right">New</span>
+            {% if recipe.round_rating != 0 %}
+              {% for i in range(1,6) %}
+                {% if recipe.round_rating >= i %}
+                  <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                {% else %}
+                  <span class="glyphicon glyphicon-star-empty" aria-hidden="true"></span>
+                {% endif %}
+              {% endfor %}
+              {{recipe.avg_rating | round(1)}} 
+            {% else %}
+              <span class="label label-warning label-new-mine">New</span>
             {% endif %}
             {% if recipe.creator_id == g.current_user.id %}
-              <span class="label label-primary pull-right">Mine</span>
+              <span class="label label-primary pull-right label-new-mine label-mine">Mine</span>
             {% endif %}
           </div>
           </a>
