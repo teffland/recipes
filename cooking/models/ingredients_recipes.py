@@ -6,8 +6,8 @@ from cooking.orm_setup import metadata, db_session, engine
 class IngredientRecipe(object):
     query = db_session.query_property()
 
-    def __init__(self, ingredient_id=None, recipe_id=None, quantity=None, unit=None, comment=None):
-        self.ingredient_id = ingredient_id
+    def __init__(self, name=None, recipe_id=None, quantity=None, unit=None, comment=None):
+        self.name = name
         self.recipe_id = recipe_id
         self.quantity = quantity
         self.unit = unit
@@ -18,12 +18,12 @@ class IngredientRecipe(object):
 
     @classmethod
     def load_ingredients(cls, recipe_id):
-        attributes = ['ingredient_id', 'quantity', 'unit', 'comment', 'name']
-        results = engine.execute("SELECT %s FROM ingredients_recipes a JOIN ingredients b ON a.ingredient_id=b.id WHERE recipe_id=%i" % (",".join(attributes), long(recipe_id)))
+        attributes = ['ingredient_name', 'quantity', 'unit', 'comment', 'name']
+        results = engine.execute("SELECT %s FROM ingredients_recipes a JOIN ingredients b ON a.ingredient_name=b.name WHERE recipe_id=%i" % (",".join(attributes), long(recipe_id)))
         ingredients = []
         for result in results:
             ingredient = cls()
-            ingredient.id = int(result[0])
+            ingredient.name = result[0]
             ingredient.quantity = result[1]
             ingredient.unit = result[2]
             ingredient.comment = result[3]
@@ -45,11 +45,11 @@ class IngredientRecipe(object):
         return output
 
 ingredients_recipes = Table('ingredients_recipes', metadata,
-    Column('ingredient_id', BIGINT, ForeignKey('ingredients.id', ondelete="CASCADE")),
-    Column('recipe_id', BIGINT, ForeignKey('recipes.id', ondelete="CASCADE")),
-    Column('quantity', VARCHAR(32)),
-    Column('unit', VARCHAR(32)),
-    Column('comment', VARCHAR(128)),
-    PrimaryKeyConstraint('ingredient_id', 'recipe_id')
+    Column('ingredient_name', VARCHAR(128), ForeignKey('ingredients.name', ondelete="CASCADE")),
+    Column('recipe_id', INTEGER, ForeignKey('recipes.id', ondelete="CASCADE")),
+    Column('quantity', VARCHAR(256)),
+    Column('unit', VARCHAR(256)),
+    Column('comment', VARCHAR(256)),
+    PrimaryKeyConstraint('ingredient_name', 'recipe_id')
 )
 mapper(IngredientRecipe, ingredients_recipes)

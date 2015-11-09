@@ -42,8 +42,11 @@
           <button type="submit" class="btn btn-default" id='search-button' url="{{ url_for('search_results',query='<query>') }}">Search</button>
         </ul>
         <ul class="nav navbar-nav pull-right">
+            <li {% if request.endpoint == 'create_recipe' %} class='active' {% endif %}>
+                <a href="{{ url_for('create_recipe') }}">Create Recipe</a>
+            </li>
             <li {% if request.endpoint == 'favorites' %} class='active' {% endif %}>
-                <a href="{{ url_for('favorites') }}"><span class="glyphicon glyphicon-heart" aria-hidden="true"></span> Favorites</a>
+                <a href="{{ url_for('favorites') }}"><span class="glyphicon glyphicon-heart" aria-hidden="true"></span>Favorites</a>
             </li>
             <li {% if request.endpoint == 'account' %} class='active' {% endif %}>
                 <a href="{{ url_for('account') }}">Account</a>

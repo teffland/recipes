@@ -154,6 +154,21 @@ def recipe(recipe_id=None):
 def account():
     return '' 
 
+@app.route('/create-recipe/', methods=['GET', 'POST'])
+def create_recipe():
+    if request.method == 'POST':
+        email = User.check_if_authentic(request.form['email'], request.form['password'])
+        if email:
+            session['email'] = email
+            flash('Logged in successfully.')
+            return redirect(url_for('recent_recipes'))
+        else:
+            error = 'Username or password incorrect.'
+            return render_template('login.html', error=error)
+
+    elif request.method == 'GET':
+        return render_template('create_recipe.html')
+
 @app.route('/favorite/<recipe_id>', methods=['PUT'])
 def favorite(recipe_id=None):
     if recipe_id:

@@ -94,11 +94,12 @@ from hashlib import sha384
 import urllib
 def download_photo(url):
     try:
-        photo_hash = sha384(url).hexdigest()
+        photo_hash = sha384(url).digest().encode('base64')[0:-1]
         localname = photo_hash+".jpg"
-        urllib.urlretrieve(url, Config.PhOTO_PATH+localname)
+        urllib.urlretrieve(url, Config.PHOTO_DIR+localname)
         return localname
     except:
+        print "\t NO PHOTO"
         return "default.jpg"
 
 import numpy as np
@@ -179,7 +180,7 @@ def db_seed3():
 
         ingredients = [{'name':i['name'], 'id':recipe_id, 'q':i['quantity'], 'u':i['unit'],\
                         'comment':i['comment']} for i in r['ingredients'] ]
-        cur.executemany("""INSERT INTO ingredients_recipes (ingredient, recipe_id, quantity, unit, comment)
+        cur.executemany("""INSERT INTO ingredients_recipes (ingredient_name, recipe_id, quantity, unit, comment)
                            VALUES (%(name)s, %(id)s, %(q)s, %(u)s, %(comment)s)""", ingredients)
 
     conn.commit()

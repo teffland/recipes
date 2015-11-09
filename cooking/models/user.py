@@ -84,12 +84,12 @@ def before_insert_listener(mapper, connection, target):
 event.listen(User, 'before_insert', before_insert_listener)
 
 users = Table('users', metadata,
-    Column('id', BIGINT, primary_key=True),
+    Column('id', INTEGER, primary_key=True),
     Column('email', VARCHAR(128)),
     Column('first_name', VARCHAR(128)),
     Column('last_name', VARCHAR(128)),
     Column('hashed_password', VARCHAR(128)),
-    Column('icon_code', SmallInteger),
+    Column('icon_code', SMALLINT),
     Column('created_at', TIMESTAMP),
     Column('last_login_at', TIMESTAMP)
 )

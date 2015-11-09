@@ -27,9 +27,9 @@ def before_update_listener(mapper, connection, target):
 event.listen(Comment, 'before_update', before_update_listener)
 
 comments = Table('comments', metadata,
-    Column('id', BIGINT, primary_key=True),
-    Column('user_id', BIGINT, ForeignKey('users.id', ondelete="CASCADE")),
-    Column('recipe_id', BIGINT, ForeignKey('recipes.id', ondelete="CASCADE")),
+    Column('id', INTEGER, primary_key=True),
+    Column('user_id', INTEGER, ForeignKey('users.id', ondelete="CASCADE")),
+    Column('recipe_id', INTEGER, ForeignKey('recipes.id', ondelete="CASCADE")),
     Column('text', TEXT),
     Column('created_at', TIMESTAMP),
     Column('updated_at', TIMESTAMP)

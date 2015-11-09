@@ -65,7 +65,7 @@ CREATE TABLE ingredients (
 
 CREATE TABLE ingredients_recipes (
     id                  serial PRIMARY KEY,
-    ingredient          varchar(128) REFERENCES ingredients(name) ON DELETE CASCADE,
+    ingredient_name     varchar(128) REFERENCES ingredients(name) ON DELETE CASCADE,
     recipe_id           integer REFERENCES recipes(id) ON DELETE CASCADE,
     quantity            varchar(256),
     unit                varchar(256),

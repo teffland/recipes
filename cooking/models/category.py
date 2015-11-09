@@ -19,7 +19,7 @@ class Category(object):
     @classmethod
     def load_categories(cls, recipe_id):
         attributes = ['name', 'description']
-        results = engine.execute("SELECT %s FROM categories_recipes JOIN categories ON categories_recipes.category_id=categories.id WHERE recipe_id=%i ORDER BY name ASC" % (",".join(attributes), long(recipe_id)))
+        results = engine.execute("SELECT %s FROM categories_recipes JOIN categories ON categories_recipes.category_name=categories.name WHERE recipe_id=%i ORDER BY name ASC" % (",".join(attributes), long(recipe_id)))
         categories = []
         for result in results:
             category = Category()
@@ -31,7 +31,7 @@ class Category(object):
 
 
 categories = Table('categories', metadata,
-    Column('id', BIGINT, primary_key=True),
+    Column('id', INTEGER, primary_key=True),
     Column('name', VARCHAR(128)),
     Column('description', TEXT)
 )

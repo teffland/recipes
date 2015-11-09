@@ -2,21 +2,25 @@
 {% block body %}
   <div class="row">
     {% for recipe in recipes %} 
-      <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3">
+      <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 recipe-card">
         <a href="{{url_for('recipe', recipe_id=recipe.id)}}" class="thumbnail nounderline">
           {% if recipe.is_user_favorite %}
             <span class="glyphicon glyphicon-heart pull-right favorite-icon favorited" aria-hidden="true" favorite-link="{{url_for('favorite', recipe_id=recipe.id)}}" unfavorite-link="{{url_for('unfavorite', recipe_id=recipe.id)}}"></span>
           {% else %}
             <span class="glyphicon glyphicon-heart-empty pull-right favorite-icon unfavorited" aria-hidden="true" favorite-link="{{url_for('favorite', recipe_id=recipe.id)}}" unfavorite-link="{{url_for('unfavorite', recipe_id=recipe.id)}}"></span>
           {% endif %}
-          <img class="recipe-thumb" src="/static/images/secret_recipe.jpg">
+          <img class="recipes-thumb" src="/static/photos/{{recipe.photo_file}}">
           <div class="caption">
             <h3>{{recipe.name}}</h3>
             {% if recipe.preparation_time %} 
               <span class="glyphicon glyphicon-time" aria-hidden="true"></span> {{recipe.preparation_time}}
             {% endif %}
+            <br>
             {% if recipe.servings %} 
-              <span class='icon-right'><span class="glyphicon glyphicon-user" aria-hidden="true"></span> {{recipe.servings}}</span>
+              <!-- <span class='icon-right'> -->
+                <div class="servings">
+                <span class="glyphicon glyphicon-user" aria-hidden="true"></span> {{recipe.servings}}</div>
+              <!-- </span> -->
             {% endif %}
             <br>
             {% for i in range(1,6) %}
@@ -89,6 +93,23 @@ $(function(){
   }
   $('.favorited').click(favoriteOnclick);  
 });
+
+function expandHeights(selector){
+    var lineHeight;
+    var maxHeight = 0;
+    $(selector).each(function(){
+        var $this = $(this);
+        if ($this.height() > maxHeight) { maxHeight = $this.height();}
+    });
+    $(selector).each(function(){
+        var $this = $(this);
+        $this.height(maxHeight);
+    });
+}
+
+expandHeights('.recipe-card>a>div.caption>h3');
+expandHeights('.servings');
+    
 </script>
 
 {% endblock %}

@@ -16,12 +16,12 @@ import math
 class Recipe(object):
     query = db_session.query_property()
 
-    def __init__(self, name=None, servings=None, preparation_time=None, nutritional_info=None, photo_path=None, creator_id=None):
+    def __init__(self, name=None, servings=None, preparation_time=None, nutritional_info=None, photo_file='default.jpg', creator_id=None):
         self.name = name
         self.servings = servings
         self.preparation_time = preparation_time
         self.nutritional_info = nutritional_info
-        self.photo_path = photo_path
+        self.photo_file = photo_file
         self.creator_id = creator_id
 
 
@@ -30,7 +30,7 @@ class Recipe(object):
 
     @classmethod
     def load_recipes(cls, current_user, limit=12, page=1, order_by='created_at DESC', join=[], where=[]):
-        attributes = ['id','name','servings','preparation_time','photo_path','created_at','creator_id']
+        attributes = ['id','name','servings','preparation_time','photo_file','created_at','creator_id']
         
         if page == 1:
             offset = ''
@@ -101,7 +101,7 @@ class Recipe(object):
 
     @classmethod
     def load_recipe(cls, recipe_id, current_user):
-        attributes = ['id','name','servings','preparation_time','photo_path','created_at','creator_id','nutritional_info',
+        attributes = ['id','name','servings','preparation_time','photo_file','created_at','creator_id','nutritional_info',
             'avg_ratings.avg_rating', 'my_ratings.rating', 'saved_counts.saved_count', 'saved.saved_at', 'avg_ratings.rating_count']
 
         join_list = []
@@ -119,7 +119,7 @@ class Recipe(object):
         for result in results:
             recipe = Recipe()
             recipe.id = result[0]; recipe.name = result[1]; recipe.servings = result[2]; recipe.preparation_time = result[3];
-            recipe.photo_path = result[4]; recipe.created_at = result[5]; recipe.creator_id = result[6]; 
+            recipe.photo_file = result[4]; recipe.created_at = result[5]; recipe.creator_id = result[6]; 
             recipe.nutritional_info = result[7]; recipe.avg_rating = result[8]; recipe.rating = result[9]; 
             recipe.favorite_count = result[10]; recipe.is_favorite = (result[11] != None); recipe.rating_count = result[12];
 
@@ -149,13 +149,13 @@ def before_insert_listener(mapper, connection, target):
 event.listen(Recipe, 'before_insert', before_insert_listener)
 
 recipes = Table('recipes', metadata,
-    Column('id', BIGINT, primary_key=True),
+    Column('id', INTEGER, primary_key=True),
     Column('name', VARCHAR(128)),
-    Column('servings', VARCHAR(32)),
-    Column('preparation_time', VARCHAR(32)),
+    Column('servings', VARCHAR(128)),
+    Column('preparation_time', VARCHAR(128)),
     Column('nutritional_info', TEXT),
-    Column('photo_path', TEXT),
-    Column('creator_id', BIGINT, ForeignKey('users.id', ondelete="CASCADE")),
+    Column('photo_file', TEXT),
+    Column('creator_id', INTEGER, ForeignKey('users.id', ondelete="CASCADE")),
     Column('created_at', TIMESTAMP)
 )
 mapper(Recipe, recipes, properties={

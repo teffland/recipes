@@ -20,7 +20,7 @@ class Ingredient(object):
 
 
 ingredients = Table('ingredients', metadata,
-    Column('id', BIGINT, primary_key=True),
+    Column('id', INTEGER, primary_key=True),
     Column('name', VARCHAR(128))
 )
 mapper(Ingredient, ingredients, properties={

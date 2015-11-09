@@ -41,8 +41,8 @@ class Rating(object):
 
 
 ratings = Table('ratings', metadata,
-    Column('user_id', BIGINT, ForeignKey('users.id', ondelete="CASCADE")),
-    Column('recipe_id', BIGINT, ForeignKey('recipes.id', ondelete="CASCADE")),
+    Column('user_id', INTEGER, ForeignKey('users.id', ondelete="CASCADE")),
+    Column('recipe_id', INTEGER, ForeignKey('recipes.id', ondelete="CASCADE")),
     Column('rating', SmallInteger),
     PrimaryKeyConstraint('user_id', 'recipe_id')
 )
