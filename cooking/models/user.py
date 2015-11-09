@@ -35,7 +35,7 @@ class User(object):
     @classmethod
     def load_user(cls, email):
         attributes = ['id','email','first_name','last_name','icon_code','created_at','last_login_at','hashed_password']
-        result = engine.execute("SELECT %s FROM users WHERE email='%s';" % (",".join(attributes), email))
+        result = engine.execute("SELECT %s FROM users WHERE email=%s;" % (",".join(attributes), '%s'), email)
         
         attrs = None
         for values in result:
@@ -50,7 +50,7 @@ class User(object):
     @classmethod
     def load_user_by_id(cls, id):
         attributes = ['id','email','first_name','last_name','icon_code','created_at','last_login_at','hashed_password']
-        result = engine.execute("SELECT %s FROM users WHERE id=%i;" % (",".join(attributes), id))
+        result = engine.execute("SELECT %s FROM users WHERE id=%s;" % (",".join(attributes), '%s'), id)
         
         attrs = None
         for values in result:
@@ -64,8 +64,8 @@ class User(object):
 
     @classmethod
     def check_if_authentic(cls, email, password):
-        result = engine.execute("SELECT email FROM users WHERE email='%s' \
-            AND hashed_password='%s';" % (email, cls.hash_password(password)))
+        result = engine.execute("SELECT email FROM users WHERE email=%s \
+            AND hashed_password=%s;", (email, cls.hash_password(password)))
         return ([email[0] for email in result] + [None])[0]
 
     @classmethod

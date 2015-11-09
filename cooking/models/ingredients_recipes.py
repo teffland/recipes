@@ -6,15 +6,15 @@ from cooking.orm_setup import metadata, db_session, engine
 class IngredientRecipe(object):
     query = db_session.query_property()
 
-    def __init__(self, name=None, recipe_id=None, quantity=None, unit=None, comment=None):
-        self.name = name
+    def __init__(self, ingredient_name=None, recipe_id=None, quantity=None, unit=None, comment=None):
+        self.ingredient_name = ingredient_name
         self.recipe_id = recipe_id
         self.quantity = quantity
         self.unit = unit
         self.comment = comment
 
     def __repr__(self):
-        return '<IngredientRecipe ingredient_id=%i:recipe_id=%i>' % (self.ingredient_id,self.recipe_id)
+        return '<IngredientRecipe ingredient_name=%s:recipe_id=%i>' % (self.ingredient_name,self.recipe_id)
 
     @classmethod
     def load_ingredients(cls, recipe_id):
@@ -27,7 +27,6 @@ class IngredientRecipe(object):
             ingredient.quantity = result[1]
             ingredient.unit = result[2]
             ingredient.comment = result[3]
-            ingredient.name = result[4]
             ingredients.append(ingredient)
 
         return ingredients

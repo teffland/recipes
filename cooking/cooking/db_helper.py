@@ -122,7 +122,7 @@ def db_seed3():
         'email' : "chef@goodfood.com",
         'first_name': "Anthony",
         'last_name': "Bourdain",
-        'hashed_password':sha384("ILoveCooking").digest().encode('base64')[0:-1],
+        'hashed_password':User.hash_password("ILoveCooking"),
         'icon_code':1,
         'created_at' : format_timestamp(datetime.now()),
         'last_login_at' : format_timestamp(datetime.now())

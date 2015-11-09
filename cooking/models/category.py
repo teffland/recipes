@@ -31,8 +31,7 @@ class Category(object):
 
 
 categories = Table('categories', metadata,
-    Column('id', INTEGER, primary_key=True),
-    Column('name', VARCHAR(128)),
+    Column('name', VARCHAR(128), primary_key=True),
     Column('description', TEXT)
 )
 mapper(Category, categories)

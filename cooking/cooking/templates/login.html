@@ -33,13 +33,13 @@ $(function() {
   var emailSuccess = false;
   $('#email_field').keyup(function(){
       if (!emailSuccess) {
-        if ($(this).val() == 'abc@abc.com') {
+        if ($(this).val() == 'chef@goodfood.com') {
           $(this).parent().parent().find('.form-control-feedback').removeClass('hidden')
           $(this).parent().parent().addClass('has-success')
           emailSuccess = true;
         }
       } else {
-        if ($(this).val() != 'abc@abc.com') {
+        if ($(this).val() != 'chef@goodfood.com') {
           $(this).parent().parent().find('.form-control-feedback').addClass('hidden')
           $(this).parent().parent().removeClass('has-success')
           emailSuccess = false;

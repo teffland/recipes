@@ -12,6 +12,7 @@ from models.category import Category
 from models.ingredient import Ingredient
 from models.ingredients_recipes import IngredientRecipe
 from timeit import default_timer as timer
+from psycopg2.extensions import adapt
 
 # Manual SQL connection management
 # from cooking import db_helper
@@ -105,7 +106,7 @@ def highest_rated_recipes():
 def search_results(query=''):
     page = request.args.get('page', default=1, type=int)
     limit = 8
-    where_clause = "recipes.name ILIKE '%%%%%s%%%%'" % query
+    where_clause = "recipes.name ILIKE '%%%%%s%%%%'" % adapt(str(query.replace('+','%%'))).getquoted()[1:-1]
 
     start_time = timer()
     recipes, page_count, recipe_count = Recipe.load_recipes(g.current_user, 

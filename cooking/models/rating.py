@@ -3,6 +3,7 @@ from sqlalchemy import Table, Column, event, PrimaryKeyConstraint, ForeignKey
 from sqlalchemy.orm import mapper, relationship, backref
 from cooking.orm_setup import metadata, db_session, engine
 from collections import defaultdict
+from psycopg2.extensions import adapt
 
 class Rating(object):
     query = db_session.query_property()
@@ -17,7 +18,7 @@ class Rating(object):
 
     @classmethod
     def avg_rating_by_recipe(cls, recipe_ids):
-        recipe_ids = [str(rid) for rid in recipe_ids]
+        recipe_ids = [adapt(str(rid)).getquoted() for rid in recipe_ids]
         result = engine.execute("SELECT recipe_id, AVG(rating) FROM ratings WHERE recipe_id IN (%s) GROUP BY recipe_id" % (",".join(recipe_ids)))
         ratings = defaultdict(int)
         for result_tuple in result:
@@ -28,16 +29,16 @@ class Rating(object):
     def rate(cls, user, recipe_id, rating):
         user_id = long(user.id)
         recipe_id = long(recipe_id)
-        results = engine.execute("SELECT COUNT(*) FROM ratings WHERE user_id=%i AND recipe_id=%i" % (user_id,recipe_id))
+        results = engine.execute("SELECT COUNT(*) FROM ratings WHERE user_id=%s AND recipe_id=%s", (user_id,recipe_id))
         exists = False
         for result in results:
             if result[0] > 0:
                 exists = True
 
         if exists:
-            engine.execute("UPDATE ratings SET rating=%i WHERE user_id=%i AND recipe_id=%i" % (int(rating), user_id, recipe_id))
+            engine.execute("UPDATE ratings SET rating=%s WHERE user_id=%s AND recipe_id=%s", (int(rating), user_id, recipe_id))
         else:
-            engine.execute("INSERT INTO ratings (user_id, recipe_id, rating) VALUES (%i,%i,%i)" % (user_id, recipe_id, int(rating)))
+            engine.execute("INSERT INTO ratings (user_id, recipe_id, rating) VALUES (%s,%s,%s)", (user_id, recipe_id, int(rating)))
 
 
 ratings = Table('ratings', metadata,

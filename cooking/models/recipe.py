@@ -12,6 +12,7 @@ from models.category import Category
 from models.ingredients_recipes import IngredientRecipe
 from models.comment import Comment
 import math
+from psycopg2.extensions import adapt
 
 class Recipe(object):
     query = db_session.query_property()
@@ -35,8 +36,8 @@ class Recipe(object):
         if page == 1:
             offset = ''
         else:
-            offset = 'OFFSET %i' % (limit * (page-1))
-        
+            offset = 'OFFSET %s' % adapt(str(limit * (page-1))).getquoted()
+
         join_sql = ''
         if len(join) > 0:
             join_list = []
@@ -44,7 +45,7 @@ class Recipe(object):
                 if join_desc == 'avg_ratings':
                     join_list.append("LEFT OUTER JOIN (SELECT recipe_id, AVG(rating) AS avg_rating FROM ratings GROUP BY recipe_id) AS avg_ratings ON recipes.id=avg_ratings.recipe_id")
                 if join_desc == 'saved':
-                    join_list.append("INNER JOIN saved ON recipes.id=saved.recipe_id AND saved.user_id=%s" % current_user.id)
+                    join_list.append("INNER JOIN saved ON recipes.id=saved.recipe_id AND saved.user_id=%s" % adapt(str(current_user.id)).getquoted())
             join_sql = ' '.join(join_list)
 
         where_array = where
@@ -52,7 +53,8 @@ class Recipe(object):
         if len(where_array) > 0:
             where_sql += ("WHERE " + (" AND ".join(where_array)))
 
-        result = engine.execute("SELECT %s FROM recipes %s %s ORDER BY %s LIMIT %s %s" % (",".join(attributes), join_sql, where_sql, order_by, limit, offset))
+        result = engine.execute("SELECT %s FROM recipes %s %s ORDER BY %s LIMIT %s %s" % 
+            (",".join(attributes), join_sql, where_sql, order_by, adapt(str(limit)).getquoted(), offset))
         
         dicts = []
         for values in result:
@@ -106,12 +108,12 @@ class Recipe(object):
 
         join_list = []
         join_list.append("LEFT OUTER JOIN (SELECT recipe_id, AVG(rating) AS avg_rating, COUNT(rating) AS rating_count FROM ratings GROUP BY recipe_id) AS avg_ratings ON recipes.id=avg_ratings.recipe_id")
-        join_list.append("LEFT OUTER JOIN ratings AS my_ratings ON recipes.id=my_ratings.recipe_id AND my_ratings.user_id=%i" % current_user.id)
+        join_list.append("LEFT OUTER JOIN ratings AS my_ratings ON recipes.id=my_ratings.recipe_id AND my_ratings.user_id=%s" % adapt(str(current_user.id)).getquoted())
         join_list.append("LEFT OUTER JOIN (SELECT recipe_id, COUNT(user_id) AS saved_count FROM saved GROUP BY recipe_id) AS saved_counts ON recipes.id=saved_counts.recipe_id")
-        join_list.append("LEFT OUTER JOIN saved ON recipes.id=saved.recipe_id AND saved.user_id=%i" % current_user.id)
+        join_list.append("LEFT OUTER JOIN saved ON recipes.id=saved.recipe_id AND saved.user_id=%s" % adapt(str(current_user.id)).getquoted())
         join_sql = ' '.join(join_list)
 
-        where_sql = "WHERE recipes.id=%i" % recipe_id
+        where_sql = "WHERE recipes.id=%s" % adapt(str(recipe_id)).getquoted()
 
         results = engine.execute("SELECT %s FROM recipes %s %s" % (",".join(attributes), join_sql, where_sql))
 
