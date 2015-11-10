@@ -42,6 +42,17 @@ class IngredientRecipe(object):
             output += ', ' + self.comment
 
         return output
+    
+    @classmethod
+    def insert_ingredient_recipe(cls, ing, q, u, d, rid):
+        data = {'ingredient':ing,
+                'quantity':q,
+                'unit':u,
+                'comment':d,
+                'recipe_id':rid
+                 }
+        engine.execute("""INSERT INTO ingredients_recipes (ingredient_name, recipe_id, quantity, unit, comment)
+                           VALUES (%(ingredient)s, %(recipe_id)s, %(quantity)s, %(unit)s, %(comment)s)""", data)
 
 ingredients_recipes = Table('ingredients_recipes', metadata,
     Column('ingredient_name', VARCHAR(128), ForeignKey('ingredients.name', ondelete="CASCADE")),

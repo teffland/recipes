@@ -27,6 +27,15 @@ class Step(object):
             steps.append(step)
 
         return steps
+    
+    @classmethod
+    def insert_step(cls,rid, n, text):
+        data = {'rid':rid,
+                'n':n,
+                'text':text
+        }   
+        engine.execute("""INSERT INTO steps (recipe_id, number, instructions)
+                           VALUES (%(rid)s, %(n)s, %(text)s)""", data)
 
 
 steps = Table('steps', metadata,

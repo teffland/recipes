@@ -3,6 +3,8 @@ from sqlalchemy import Table, Column, event, ForeignKey
 from sqlalchemy.orm import mapper, relationship, backref
 from cooking.orm_setup import metadata, db_session, engine
 import datetime
+from models.base_model import BaseModel
+from cooking.config import Config
 import models.user
 from models.step import Step, steps
 from models.rating import Rating
@@ -13,6 +15,20 @@ from models.ingredients_recipes import IngredientRecipe
 from models.comment import Comment
 import math
 from psycopg2.extensions import adapt
+
+from hashlib import sha384
+import urllib
+def download_photo(url):
+    try:
+        photo_hash = sha384(url).digest().encode('base64')[0:-1]
+        #print photo_hash.replace
+        localname = photo_hash.replace('/', '-')+".jpg"
+        print localname
+        urllib.urlretrieve(url, Config.PHOTO_DIR+localname)
+        return localname
+    except:
+    #    print "\t NO PHOTO"
+        return "default.jpg"
 
 class Recipe(object):
     query = db_session.query_property()
@@ -146,6 +162,18 @@ class Recipe(object):
             recipe.comments = Comment.load_comments(recipe.id)
 
         return recipe
+
+    @classmethod
+    def insert_recipe(cls, recipe):
+        recipe['created_at'] = BaseModel.timestamp_to_db(datetime.datetime.now())
+        recipe['photo_file'] = download_photo(recipe['photo'])
+
+        engine.execute("""INSERT INTO recipes (name, servings, preparation_time, photo_file, nutritional_info, creator_id, created_at)
+                       VALUES (%(name)s, %(servings)s, %(prep)s, %(photo_file)s,
+                               %(nutri)s, %(creator)s, %(created_at)s)""", recipe)
+        recipe_id = engine.execute("SELECT id FROM recipes ORDER BY id DESC LIMIT 1;").first()[0]
+        return recipe_id
+    
 
 def before_insert_listener(mapper, connection, target):
     target.created_at = datetime.datetime.now()

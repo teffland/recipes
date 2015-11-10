@@ -108,3 +108,24 @@ img.recipe-thumb {
 .label-mine {
   margin-top: 2px
 }
+
+#field>input {
+    width:90%;
+}
+
+textarea {
+    width:90%;
+}
+
+.ui-widget{
+    background-color:#fff;
+    width:500px;
+}
+.ui-widget>li {
+    list-style-type:none;
+}
+.ui-widget>li:hover {
+    list-style-type:none;
+    background-color:#ddd;
+    color:#fff;
+}

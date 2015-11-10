@@ -75,7 +75,8 @@ def write_json(data, fname='recipe_data.json'):
 # In[ ]:
 
 root = 'http://cooking.nytimes.com'
-num_searches = 10
+num_searches = 20
+
 search_links = [ root+'/search?q=&page='+str(n+1) for n in range(num_searches)]
 
 print "Getting recipe links"

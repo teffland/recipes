@@ -94,17 +94,16 @@ def format_timestamp(date):
 from hashlib import sha384
 import urllib
 def download_photo(url):
-    #try:
-    #print Config.PHOTO_DIR
-    photo_hash = sha384(url).digest().encode('base64')[0:-1]
-    #print photo_hash.replace
-    localname = photo_hash.replace('/', '-')+".jpg"
-    print localname
-    urllib.urlretrieve(url, Config.PHOTO_DIR+localname)
-    return localname
-    #except:
+    try:
+        photo_hash = sha384(url).digest().encode('base64')[0:-1]
+        #print photo_hash.replace
+        localname = photo_hash.replace('/', '-')+".jpg"
+        print localname
+        urllib.urlretrieve(url, Config.PHOTO_DIR+localname)
+        return localname
+    except:
     #    print "\t NO PHOTO"
-    #    return "default.jpg"
+        return "default.jpg"
 
 import numpy as np
 def get_random_nutritional_info():
