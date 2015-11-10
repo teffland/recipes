@@ -2,10 +2,10 @@
 I noticed you were using ```sha384("password").digest().encode('base64')[0:-1]``` for password hashing
 Why not just use ```sha384("password").hexdigest()``` ?
 # Todo List
-- []Sanizize SQL queries
+- [X]Sanizize SQL queries
 - []Create the account page (with the option to edit password)
-- []Add comments to the recipe pages
-- []Create recipe page
+- [X]Add comments to the recipe pages
+- [X]Create recipe page
 - [X]Load the data 
 - [X]Store recipe images
 
