@@ -55,9 +55,13 @@ def recipe_link_to_dict(link):
         
     # get the step info
     recipe['steps'] = []
+    count = 1
     for i, li in enumerate(soup.find('ol', itemprop='recipeInstructions').contents):
-        try:
-            recipe['steps'].append({'number':i, 'instructions':li.text})
+        print "COUNT: ", count
+        try: 
+            if li.text:
+                recipe['steps'].append({'number':count, 'instructions':li.text})
+                count +=1
         except: # some elements aren't li and break on .text
             pass
     
@@ -66,7 +70,7 @@ def recipe_link_to_dict(link):
 
 # In[184]:
 
-def write_json(data, fname='recipe_data.json'):
+def write_json(data, fname='cooking/data/recipe_data.json'):
     with open(fname, 'w') as fp:
         json.dump(data, fp)
     
@@ -75,7 +79,8 @@ def write_json(data, fname='recipe_data.json'):
 # In[ ]:
 
 root = 'http://cooking.nytimes.com'
-num_searches = 10
+num_searches = 20
+
 search_links = [ root+'/search?q=&page='+str(n+1) for n in range(num_searches)]
 
 print "Getting recipe links"

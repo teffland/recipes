@@ -9,28 +9,34 @@
           {% else %}
             <span class="glyphicon glyphicon-heart-empty pull-right favorite-icon unfavorited" aria-hidden="true" favorite-link="{{url_for('favorite', recipe_id=recipe.id)}}" unfavorite-link="{{url_for('unfavorite', recipe_id=recipe.id)}}"></span>
           {% endif %}
-          <img class="recipe-thumb" src="/static/images/secret_recipe.jpg">
+          <img class="recipes-thumb" src="/static/photos/{{recipe.photo_file}}">
           <div class="caption">
-            <h3>{{recipe.name | trim}}</h3>
+            <h4>{{recipe.name | trim}}</h4>
             {% if recipe.preparation_time | trim | length > 0 %} 
+              <div class="prep">
               <span class="glyphicon glyphicon-time" aria-hidden="true"></span> {{recipe.preparation_time | trim}}<br>
+              </div>
             {% endif %}
+            <br>
             {% if recipe.servings | trim | length > 0 %} 
+              <div class="servings">
               <span class="glyphicon glyphicon-user" aria-hidden="true"></span> {{recipe.servings | trim}}<br>
+              </div>
             {% endif %}
-            {% for i in range(1,6) %}
-              {% if recipe.round_rating >= i %}
-                <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
-              {% else %}
-                <span class="glyphicon glyphicon-star-empty" aria-hidden="true"></span>
-              {% endif %}
-            {% endfor %}
-            {% if recipe.round_rating != 0 %} {{recipe.avg_rating}} {% endif %}
-            {% if recipe.round_rating == 0 %}
-              <span class="label label-warning pull-right">New</span>
+            {% if recipe.round_rating != 0 %}
+              {% for i in range(1,6) %}
+                {% if recipe.round_rating >= i %}
+                  <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                {% else %}
+                  <span class="glyphicon glyphicon-star-empty" aria-hidden="true"></span>
+                {% endif %}
+              {% endfor %}
+              {{recipe.avg_rating | round(1)}} 
+            {% else %}
+              <span class="label label-warning label-new-mine">New</span>
             {% endif %}
             {% if recipe.creator_id == g.current_user.id %}
-              <span class="label label-primary pull-right">Mine</span>
+              <span class="label label-primary pull-right label-new-mine label-mine">Mine</span>
             {% endif %}
           </div>
           </a>
@@ -88,6 +94,24 @@ $(function(){
   }
   $('.favorited').click(favoriteOnclick);  
 });
+
+function expandHeights(selector){
+    var lineHeight;
+    var maxHeight = 0;
+    $(selector).each(function(){
+        var $this = $(this);
+        if ($this.height() > maxHeight) { maxHeight = $this.height();}
+    });
+    $(selector).each(function(){
+        var $this = $(this);
+        $this.height(maxHeight);
+    });
+}
+
+//expandHeights('.recipe-panel>a>div.caption>h4');
+//expandHeights('.prep');
+expandHeights('.recipe-panel');
+    
 </script>
 
 {% endblock %}

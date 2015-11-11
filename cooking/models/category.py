@@ -14,12 +14,12 @@ class Category(object):
         self.description = description
 
     def __repr__(self):
-        return '<Category name=%i>' % (self.name)
+        return '<Category name=%r>' % (self.name)
 
     @classmethod
     def load_categories(cls, recipe_id):
         attributes = ['name', 'description']
-        results = engine.execute("SELECT %s FROM categories_recipes JOIN categories ON categories_recipes.category_name=categories.name WHERE recipe_id=%s ORDER BY name ASC" % (",".join(attributes), '%s'), long(recipe_id))
+        results = engine.execute("SELECT %s FROM categories_recipes JOIN categories ON categories_recipes.category_name=categories.name WHERE recipe_id=%i ORDER BY name ASC" % (",".join(attributes), long(recipe_id)))
         categories = []
         for result in results:
             category = Category()
@@ -29,6 +29,18 @@ class Category(object):
 
         return categories
 
+    @classmethod
+    def load_unique_categories(cls):
+        results = engine.execute("SELECT name, description FROM categories;")
+        categories = []
+        for result in results:
+            categories.append(Category(name=result[0], description=result[1]))
+        return categories
+
+    @classmethod
+    def insert_category(cls, name):
+        d = {'name':name}
+        engine.execute("INSERT INTO categories (name) VALUES %(name)s", d)
 
 categories = Table('categories', metadata,
     Column('name', VARCHAR(128), primary_key=True),

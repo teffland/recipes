@@ -18,8 +18,8 @@ class IngredientRecipe(object):
 
     @classmethod
     def load_ingredients(cls, recipe_id):
-        attributes = ['name', 'quantity', 'unit', 'comment']
-        results = engine.execute("SELECT %s FROM ingredients_recipes a JOIN ingredients b ON a.ingredient=b.name WHERE recipe_id=%s" % (",".join(attributes), '%s'), long(recipe_id))
+        attributes = ['ingredient_name', 'quantity', 'unit', 'comment', 'name']
+        results = engine.execute("SELECT %s FROM ingredients_recipes a JOIN ingredients b ON a.ingredient_name=b.name WHERE recipe_id=%i" % (",".join(attributes), long(recipe_id)))
         ingredients = []
         for result in results:
             ingredient = cls()
@@ -42,13 +42,24 @@ class IngredientRecipe(object):
             output += ', ' + self.comment
 
         return output
+    
+    @classmethod
+    def insert_ingredient_recipe(cls, ing, q, u, d, rid):
+        data = {'ingredient':ing,
+                'quantity':q,
+                'unit':u,
+                'comment':d,
+                'recipe_id':rid
+                 }
+        engine.execute("""INSERT INTO ingredients_recipes (ingredient_name, recipe_id, quantity, unit, comment)
+                           VALUES (%(ingredient)s, %(recipe_id)s, %(quantity)s, %(unit)s, %(comment)s)""", data)
 
 ingredients_recipes = Table('ingredients_recipes', metadata,
-    Column('id', BIGINT, primary_key=True),
-    Column('ingredient', VARCHAR(128), ForeignKey('ingredients.name', ondelete="CASCADE")),
-    Column('recipe_id', BIGINT, ForeignKey('recipes.id', ondelete="CASCADE")),
-    Column('quantity', VARCHAR(32)),
-    Column('unit', VARCHAR(32)),
-    Column('comment', VARCHAR(128))
+    Column('ingredient_name', VARCHAR(128), ForeignKey('ingredients.name', ondelete="CASCADE")),
+    Column('recipe_id', INTEGER, ForeignKey('recipes.id', ondelete="CASCADE")),
+    Column('quantity', VARCHAR(256)),
+    Column('unit', VARCHAR(256)),
+    Column('comment', VARCHAR(256)),
+    PrimaryKeyConstraint('ingredient_name', 'recipe_id')
 )
 mapper(IngredientRecipe, ingredients_recipes)

@@ -3,6 +3,8 @@ from sqlalchemy import Table, Column, event, ForeignKey
 from sqlalchemy.orm import mapper, relationship, backref
 from cooking.orm_setup import metadata, db_session, engine
 import datetime
+from models.base_model import BaseModel
+from cooking.config import Config
 import models.user
 from models.step import Step, steps
 from models.rating import Rating
@@ -14,15 +16,29 @@ from models.comment import Comment
 import math
 from psycopg2.extensions import adapt
 
+from hashlib import sha384
+import urllib
+def download_photo(url):
+    try:
+        photo_hash = sha384(url).digest().encode('base64')[0:-1]
+        #print photo_hash.replace
+        localname = photo_hash.replace('/', '-')+".jpg"
+        print localname
+        urllib.urlretrieve(url, Config.PHOTO_DIR+localname)
+        return localname
+    except:
+    #    print "\t NO PHOTO"
+        return "default.jpg"
+
 class Recipe(object):
     query = db_session.query_property()
 
-    def __init__(self, name=None, servings=None, preparation_time=None, nutritional_info=None, photo_path=None, creator_id=None):
+    def __init__(self, name=None, servings=None, preparation_time=None, nutritional_info=None, photo_file='default.jpg', creator_id=None):
         self.name = name
         self.servings = servings
         self.preparation_time = preparation_time
         self.nutritional_info = nutritional_info
-        self.photo_path = photo_path
+        self.photo_file = photo_file
         self.creator_id = creator_id
 
 
@@ -121,7 +137,7 @@ class Recipe(object):
         for result in results:
             recipe = Recipe()
             recipe.id = result[0]; recipe.name = result[1]; recipe.servings = result[2]; recipe.preparation_time = result[3];
-            recipe.photo_path = result[4]; recipe.created_at = result[5]; recipe.creator_id = result[6]; 
+            recipe.photo_file = result[4]; recipe.created_at = result[5]; recipe.creator_id = result[6]; 
             recipe.nutritional_info = result[7]; recipe.avg_rating = result[8]; recipe.rating = result[9]; 
             recipe.favorite_count = result[10]; recipe.is_favorite = (result[11] != None); recipe.rating_count = result[12];
 
@@ -143,21 +159,34 @@ class Recipe(object):
             recipe.ingredients_recipes = IngredientRecipe.load_ingredients(recipe.id)
             recipe.categories = Category.load_categories(recipe.id)
             recipe.category_count = len(recipe.categories)
+            recipe.comments = Comment.load_comments(recipe.id)
 
         return recipe
+
+    @classmethod
+    def insert_recipe(cls, recipe):
+        recipe['created_at'] = BaseModel.timestamp_to_db(datetime.datetime.now())
+        recipe['photo_file'] = download_photo(recipe['photo'])
+
+        engine.execute("""INSERT INTO recipes (name, servings, preparation_time, photo_file, nutritional_info, creator_id, created_at)
+                       VALUES (%(name)s, %(servings)s, %(prep)s, %(photo_file)s,
+                               %(nutri)s, %(creator)s, %(created_at)s)""", recipe)
+        recipe_id = engine.execute("SELECT id FROM recipes ORDER BY id DESC LIMIT 1;").first()[0]
+        return recipe_id
+    
 
 def before_insert_listener(mapper, connection, target):
     target.created_at = datetime.datetime.now()
 event.listen(Recipe, 'before_insert', before_insert_listener)
 
 recipes = Table('recipes', metadata,
-    Column('id', BIGINT, primary_key=True),
+    Column('id', INTEGER, primary_key=True),
     Column('name', VARCHAR(128)),
-    Column('servings', VARCHAR(32)),
-    Column('preparation_time', VARCHAR(32)),
+    Column('servings', VARCHAR(128)),
+    Column('preparation_time', VARCHAR(128)),
     Column('nutritional_info', TEXT),
-    Column('photo_path', TEXT),
-    Column('creator_id', BIGINT, ForeignKey('users.id', ondelete="CASCADE")),
+    Column('photo_file', TEXT),
+    Column('creator_id', INTEGER, ForeignKey('users.id', ondelete="CASCADE")),
     Column('created_at', TIMESTAMP)
 )
 mapper(Recipe, recipes, properties={

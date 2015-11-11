@@ -75,6 +75,9 @@ class User(object):
             setattr(obj,attr,val)
         return obj
 
+    def name(self):
+        return self.first_name + ' ' + self.last_name
+
     def __repr__(self):
         return '<User id=%s:email=%r>' % (self.id,self.email)
 
@@ -84,12 +87,12 @@ def before_insert_listener(mapper, connection, target):
 event.listen(User, 'before_insert', before_insert_listener)
 
 users = Table('users', metadata,
-    Column('id', BIGINT, primary_key=True),
+    Column('id', INTEGER, primary_key=True),
     Column('email', VARCHAR(128)),
     Column('first_name', VARCHAR(128)),
     Column('last_name', VARCHAR(128)),
     Column('hashed_password', VARCHAR(128)),
-    Column('icon_code', SmallInteger),
+    Column('icon_code', SMALLINT),
     Column('created_at', TIMESTAMP),
     Column('last_login_at', TIMESTAMP)
 )

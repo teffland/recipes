@@ -7,10 +7,9 @@ import datetime
 class Step(object):
     query = db_session.query_property()
 
-    def __init__(self, recipe_id=None, number=None, title=None, instructions=None):
+    def __init__(self, recipe_id=None, number=None, instructions=None):
         self.recipe_id = recipe_id
         self.number = number
-        self.title = title
         self.instructions = instructions
 
     def __repr__(self):
@@ -19,7 +18,7 @@ class Step(object):
     @classmethod
     def load_steps(cls, recipe_id):
         attributes = ['number', 'instructions']
-        results = engine.execute("SELECT %s FROM steps WHERE recipe_id=%s ORDER BY number ASC" % (",".join(attributes), '%s'), long(recipe_id))
+        results = engine.execute("SELECT %s FROM steps WHERE recipe_id=%i ORDER BY number ASC" % (",".join(attributes), long(recipe_id)))
         steps = []
         for result in results:
             step = Step()
@@ -28,11 +27,20 @@ class Step(object):
             steps.append(step)
 
         return steps
+    
+    @classmethod
+    def insert_step(cls,rid, n, text):
+        data = {'rid':rid,
+                'n':n,
+                'text':text
+        }   
+        engine.execute("""INSERT INTO steps (recipe_id, number, instructions)
+                           VALUES (%(rid)s, %(n)s, %(text)s)""", data)
 
 
 steps = Table('steps', metadata,
-    Column('recipe_id', BIGINT, ForeignKey('recipes.id', ondelete="CASCADE")),
-    Column('number', SmallInteger),
+    Column('recipe_id', INTEGER, ForeignKey('recipes.id', ondelete="CASCADE")),
+    Column('number', SMALLINT),
     Column('instructions', TEXT),
     PrimaryKeyConstraint('recipe_id', 'number')
 )

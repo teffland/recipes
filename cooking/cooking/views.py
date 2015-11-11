@@ -11,6 +11,8 @@ from models.saved import Saved
 from models.category import Category
 from models.ingredient import Ingredient
 from models.ingredients_recipes import IngredientRecipe
+from models.categories_recipes import insert_category_recipe
+from models.comment import Comment
 from timeit import default_timer as timer
 from psycopg2.extensions import adapt
 
@@ -155,6 +157,56 @@ def recipe(recipe_id=None):
 def account():
     return '' 
 
+@app.route('/create-recipe/', methods=['GET', 'POST'])
+def create_recipe():
+    categories = [str(c.name) for c in Category.load_unique_categories()]
+    ingredients = [str(i.name.encode('utf-8')) for i in Ingredient.load_unique_ingredients()]
+    if request.method == 'POST':
+        print request.form.keys()
+        f = request.form
+        recipe_dict = {'name':f['name'],
+                  'servings':f['servings'],
+                  'prep':f['preptime'],
+                  'photo':f['uploadimg'],
+                  'nutri':f['nutrition'],
+                  'creator':g.current_user.id
+                }
+        rid = Recipe.insert_recipe(recipe_dict)      
+        c_count = int(f['c-count'])
+        for c in range(1,c_count+1):
+            cat = f['c'+str(c)]
+            if not cat: continue # handle empty fields
+            elif cat in categories:
+                insert_category_recipe(cat, rid)
+            else:
+                Category.insert_category(cat)
+                insert_category_recipe(cat, rid)
+
+        i_count = int(f['i-count'])
+        for i in range(1,i_count+1):
+            ing = f['i'+str(i)]
+            q = f['q'+str(i)]
+            u = f['u'+str(i)]
+            d = f['d'+str(i)]
+            if not ing: continue
+            elif ing in ingredients:
+                IngredientRecipe.insert_ingredient_recipe(ing, q,u,d, rid)
+            else:
+                Ingredient.insert_ingredient(ing)
+                IngredientRecipe.insert_ingredient_recipe(ing, q,u,d, rid)
+
+        step_count = int(f['step-count'])
+        for s in range(1,step_count+1):
+            step = f['step'+str(s)]
+            if not step: continue
+            else: Step.insert_step(rid, s, step)
+        return recipe(recipe_id=rid)
+        
+    elif request.method == 'GET':
+        #print "DIFF: ",set(categories)-set(ingredients)
+
+        return render_template('create_recipe.html', categories=categories, ingredients=ingredients)
+
 @app.route('/favorite/<recipe_id>', methods=['PUT'])
 def favorite(recipe_id=None):
     if recipe_id:
@@ -171,4 +223,19 @@ def unfavorite(recipe_id=None):
 def rate(recipe_id=None, rating=None):
     if recipe_id != None and rating != None:
         Rating.rate(g.current_user, recipe_id, rating)
+    return ''
+
+@app.route('/comment/<recipe_id>', methods=['POST'])
+def comment(recipe_id=None):
+    if recipe_id != None and 'comment_text' in request.form and len(request.form['comment_text'].strip()) > 0:
+        Comment.create_comment(g.current_user, recipe_id, request.form['comment_text'].strip())
+        comment = Comment.load_last_comment(recipe_id)
+        return render_template('comment.html', comment=comment)
+    else:
+        return ''
+
+@app.route('/delete_comment/<comment_id>', methods=['DELETE'])
+def delete_comment(comment_id=None):
+    if comment_id != None:
+        Comment.delete_comment(comment_id, g.current_user.id)
     return ''
