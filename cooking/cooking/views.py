@@ -15,6 +15,7 @@ from models.categories_recipes import insert_category_recipe
 from models.comment import Comment
 from timeit import default_timer as timer
 from psycopg2.extensions import adapt
+from orm_setup import engine
 
 # Manual SQL connection management
 # from cooking import db_helper
@@ -29,6 +30,12 @@ from psycopg2.extensions import adapt
 #         db.close()
 
 
+@app.route('/')
+def home():
+    if g.current_user:
+        return recent_recipes()
+    else:
+        return login()
 @app.before_request
 def load_user():
     if '/static/' in request.path:
@@ -161,47 +168,53 @@ def account():
 def create_recipe():
     categories = [str(c.name) for c in Category.load_unique_categories()]
     ingredients = [str(i.name.encode('utf-8')) for i in Ingredient.load_unique_ingredients()]
+    engine.execute("BEGIN;")
     if request.method == 'POST':
-        print request.form.keys()
-        f = request.form
-        recipe_dict = {'name':f['name'],
-                  'servings':f['servings'],
-                  'prep':f['preptime'],
-                  'photo':f['uploadimg'],
-                  'nutri':f['nutrition'],
-                  'creator':g.current_user.id
-                }
-        rid = Recipe.insert_recipe(recipe_dict)      
-        c_count = int(f['c-count'])
-        for c in range(1,c_count+1):
-            cat = f['c'+str(c)]
-            if not cat: continue # handle empty fields
-            elif cat in categories:
-                insert_category_recipe(cat, rid)
-            else:
-                Category.insert_category(cat)
-                insert_category_recipe(cat, rid)
+        try:
+            print request.form.keys()
+            f = request.form
+            recipe_dict = {'name':f['name'],
+                      'servings':f['servings'],
+                      'prep':f['preptime'],
+                      'photo':f['uploadimg'],
+                      'nutri':f['nutrition'],
+                      'creator':g.current_user.id
+                    }
+            rid = Recipe.insert_recipe(recipe_dict)      
+            c_count = int(f['c-count'])
+            for c in range(1,c_count+1):
+                cat = f['c'+str(c)]
+                if not cat: continue # handle empty fields
+                elif cat in categories:
+                    insert_category_recipe(cat, rid)
+                else:
+                    Category.insert_category(cat)
+                    insert_category_recipe(cat, rid)
 
-        i_count = int(f['i-count'])
-        for i in range(1,i_count+1):
-            ing = f['i'+str(i)]
-            q = f['q'+str(i)]
-            u = f['u'+str(i)]
-            d = f['d'+str(i)]
-            if not ing: continue
-            elif ing in ingredients:
-                IngredientRecipe.insert_ingredient_recipe(ing, q,u,d, rid)
-            else:
-                Ingredient.insert_ingredient(ing)
-                IngredientRecipe.insert_ingredient_recipe(ing, q,u,d, rid)
+            i_count = int(f['i-count'])
+            for i in range(1,i_count+1):
+                ing = f['i'+str(i)]
+                q = f['q'+str(i)]
+                u = f['u'+str(i)]
+                d = f['d'+str(i)]
+                if not ing: continue
+                elif ing in ingredients:
+                    IngredientRecipe.insert_ingredient_recipe(ing, q,u,d, rid)
+                else:
+                    Ingredient.insert_ingredient(ing)
+                    IngredientRecipe.insert_ingredient_recipe(ing, q,u,d, rid)
 
-        step_count = int(f['step-count'])
-        for s in range(1,step_count+1):
-            step = f['step'+str(s)]
-            if not step: continue
-            else: Step.insert_step(rid, s, step)
-        return recipe(recipe_id=rid)
-        
+            step_count = int(f['step-count'])
+            for s in range(1,step_count+1):
+                step = f['step'+str(s)]
+                if not step: continue
+                else: Step.insert_step(rid, s, step)
+            engine.execute("COMMIT;")
+            return redirect(url_for('recipe', recipe_id=rid))
+        except Exception as e:
+            import pdb; pdb.set_trace()
+            engine.execute("ROLLBACK;") 
+            return render_template('create_recipe.html', categories=categories, ingredients=ingredients)
     elif request.method == 'GET':
         #print "DIFF: ",set(categories)-set(ingredients)
 
