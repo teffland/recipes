@@ -2,7 +2,9 @@ from flask import Flask
 
 # create our application
 app = Flask(__name__)
-app.config.from_object('cooking.config.DevelopmentConfig')
+# app.config.from_object('cooking.config.DevelopmentConfig')
+app.config.from_object('cooking.config.ProductionConfig')
+
 
 # Setup connection through ORM
 from cooking.orm_setup import db_session, engine
