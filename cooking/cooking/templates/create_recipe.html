@@ -1,0 +1,239 @@
+{% extends "layout.html" %}
+{% block body %}
+  <div class="row">  
+    <div class="col-xs-10 col-xs-offset-1">
+<!--      <div id='login_form' class="panel col-xs-3 {% if not error %} collapse {% endif %} panel-collapse"> -->
+        <form action="{{url_for('create_recipe')}}" class="form-horizontal" method="POST">
+        <fieldset>
+
+        <!-- Form Name -->
+        <legend>Create Recipe</legend>
+
+        <!-- Text input-->
+        <div class="form-group">
+          <label class="col-md-2 control-label" for="textinput">Recipe Name</label>  
+          <div class="col-md-9">
+          <input id="textinput" name="name" type="text" placeholder="Baked Mac N' Cheese" class="form-control input-md" required="">
+            
+          </div>
+        </div>
+
+        <!-- Text input-->
+        <div class="form-group">
+          <label class="col-md-2 control-label" for="uploadimg">Upload Image URL</label>  
+          <div class="col-md-9">
+          <input id="uploadimg" name="uploadimg" type="text" placeholder="http://cookdiary.net/wp-content/uploads/images/Baked-Mac-'N'-Cheese_10213.jpg" class="form-control input-md">
+            
+          </div>
+        </div>
+
+        <!-- Text input-->
+        <div class="form-group">
+            <label class="col-md-2 control-label" for="servings">Servings</label>
+            <div class="col-md-9">
+                <input type="text" name="servings" class="form-control input-md" id="servings" placeholder="Serves up to 1 really hungry person" required="">
+            </div>
+        </div>
+
+        <!-- Text input-->
+        <div class="form-group">
+          <label class="col-md-2 control-label" for="preptime">Preparation Time</label>  
+          <div class="col-md-9">
+          <input id="preptime" name="preptime" type="text" placeholder="20 minutes" class="form-control input-md">
+            
+          </div>
+        </div>
+
+        <!-- Textarea -->
+        <div class="form-group">
+          <label class="col-md-2 control-label" for="nutrition">Description</label>
+          <div class="col-md-9">                     
+            <textarea class="form-control" id="nutrition" name="nutrition"></textarea>
+          </div>
+        </div>
+
+        <!-- Text input-->
+        <input type="hidden" id="c-count" name="c-count" value="1" />
+        <div class="form-group" id="fields">
+            <label class="col-md-2 control-label" for="field1">Categories</label>
+            <div class="control-group" id="fields">
+                <div class="controls col-md-9" id="cs"> 
+                        <div id="field" class=""><input class="input" id="c-field1" name="c1" type="text" placeholder="Type to pick" data-items="8"/><button id="b1" class="btn c-add-more" type="button">+</button></div>
+                </div>
+            </div>
+        </div>
+
+        <input type="hidden" id="i-count" name="i-count" value="1" />
+        <div class="form-group" id="fields">
+            <label class="col-md-2 control-label" for="field1">Ingredients</label>
+            <div class="control-group" id="fields">
+                <div class="controls col-md-8" id="is"> 
+                        <div id="field" class="">
+                    <div class="form-inline" id="i-field1"><input class="input" id="ingredient" name="i1" type="text" placeholder="Type to pick"><input class="input" name="q1" type="number" step="any" min="0"><input class="input" name="u1" type="text" placeholder="e.g. cups"><input class="input" name="d1" type="text" placeholder="Comment"></div>
+                        <button id="b1" class="btn i-add-more" type="button">+</button></div>
+
+                    </div>
+ 
+            </div>
+        </div>
+        <input type="hidden" id="step-count" name="step-count" value="1" />
+        <div class="form-group" id="fields">
+            <label class="col-md-2 control-label" for="field1">Steps</label>
+            <div class="control-group" id="fields">
+                <div class="controls col-md-9" id="steps"> 
+                        <div id="field" class=""><textarea class="input" id="step-field1" name="step1"  data-items="8"/></textarea><button id="b1" class="btn step-add-more" type="button">+</button></div>
+                </div>
+            </div>
+        </div>
+        </fieldset>
+          <button type="submit" class="pull-right btn btn-primary">Submit</button>
+        </form>
+    </div>
+  </div>
+  
+<script>
+var categories = {{categories|safe}};
+var ingredients = {{ingredients|safe}};
+$(function() {
+    $( "#c-field1" ).autocomplete({
+      source: categories
+    });
+  });
+$(function() {
+    $( "#i-field1" ).children().first().autocomplete({
+      source: ingredients
+    });
+  });
+/*
+                <div class="col-md-9">
+                    <div id="field" class="input-group">
+                        <input class="input form-control" id="field1" name="prof1" type="text" placeholder="Type something" data-items="8"/>
+                        <span class="input-group-btn"><button id="b1" class="btn add-more" type="button">+</button></span>
+                    </div>
+                </div>
+*/
+$(document).ready(function(){
+    var next = 1;
+    $(".c-add-more").click(function(e){
+        e.preventDefault();
+        var addto = "#c-field" + next;
+        var addRemove = "#c-field" + (next);
+        next = next + 1;
+        var newIn = '<input class="input" id="c-field' + next + '" name="c' + next + '" type="text" placeholder="Type to pick">';
+        var newInput = $(newIn);
+        var removeBtn = '<button id="remove' + (next - 1) + '" class="btn btn-danger c-remove-me" >-</button></div><div id="field">';// class="input-group">';
+        var removeButton = $(removeBtn);
+        $(addto).after(newInput);
+        $(addRemove).after(removeButton);
+        $("#c-field" + next).attr('data-source',$(addto).attr('data-source'));
+        $("#c-count").val(next);  
+        
+            $('.c-remove-me').click(function(e){
+                e.preventDefault();
+                var fieldNum = this.id.charAt(this.id.length-1);
+                var fieldID = "#c-field" + fieldNum;
+                $(this).remove();
+                $(fieldID).remove();
+            });
+        $( "#c-field"+next ).autocomplete({
+          source: categories
+        });
+    });
+});
+$(document).ready(function(){
+    var next = 1;
+    $(".i-add-more").click(function(e){
+        e.preventDefault();
+        var addto = "#i-field" + next;
+        var addRemove = "#i-field" + (next);
+        next = next + 1;
+        var newIn = '<div class="form-inline" id="i-field' + next + '"><input class="input" id="ingredient" name="i' + next + '" type="text" placeholder="Type to pick"><input class="input" name="q' + next + '" type="number" step="any" min="0"><input class="input" name="u' + next + '" type="text" placeholder="e.g. cups"><input class="input" name="d' + next + '" type="text" placeholder="Comment"></div>';
+        var newInput = $(newIn);
+        var removeBtn = '<button id="remove' + (next - 1) + '" class="btn btn-danger i-remove-me" >-</button></div><div id="field">';// class="input-group">';
+        var removeButton = $(removeBtn);
+        console.log("addto: "+addto);
+        console.log("addrem: "+addRemove);
+        $(addto).after(newInput);
+        $(addRemove).after(removeButton);
+        $("#i-field" + next).attr('data-source',$(addto).attr('data-source'));
+        $("#i-count").val(next);  
+        
+            $('.i-remove-me').click(function(e){
+                e.preventDefault();
+                var fieldNum = this.id.charAt(this.id.length-1);
+                var fieldID = "#i-field" + fieldNum;
+                $(this).remove();
+                $(fieldID).remove();
+            });
+        $( "#i-field"+next ).children().first().autocomplete({
+          source: ingredients
+        });
+    });
+});
+$(document).ready(function(){
+    var next = 1;
+    $(".step-add-more").click(function(e){
+        e.preventDefault();
+        var addto = "#step-field" + next;
+        var addRemove = "#step-field" + (next);
+        next = next + 1;
+        var newIn = '<textarea class="input" id="step-field' + next + '" name="step' + next + '" type="text"></textarea>';
+        var newInput = $(newIn);
+        var removeBtn = '<button id="remove' + (next - 1) + '" class="btn btn-danger step-remove-me" >-</button></div><div id="field">';// class="input-group">';
+        var removeButton = $(removeBtn);
+        $(addto).after(newInput);
+        $(addRemove).after(removeButton);
+        $("#step-field" + next).attr('data-source',$(addto).attr('data-source'));
+        $("#step-count").val(next);  
+        
+            $('.step-remove-me').click(function(e){
+                e.preventDefault();
+                var fieldNum = this.id.charAt(this.id.length-1);
+                var fieldID = "#step-field" + fieldNum;
+                $(this).remove();
+                $(fieldID).remove();
+            });
+    });
+});
+/*
+$(function(){
+    var next = 1;
+    $(".add-more").click( function(e){
+        console.log("EVENT");
+        e.preventDefault();
+        var addRemove = "#field" + (next);
+        next = next + 1;
+        var col = $(addRemove).parent().parent();
+        col.after('<div class="col-md-9 col-md-offset-3"><div id="field" class="input-group"><input class="input form-control" id="field'+ next + '" type="text" placeholder="Type Something"><span class="input-group-btn"><button id="b'+next+'" class="btn btn-danger remove-me" type="button">-</button></span></div></div>');
+
+
+
+
+        var addto = "#field" + next;
+        next = next + 1;
+        var newIn = '<div class="col-md-9"><div id="field" class="input-group"><input class="input form-control" id="field' + next + '" name="field' + next + '" type="text">';
+        var newInput = $(newIn);
+        var removeBtn = '<span class="input-group-btn"><button id="remove' + (next-1) + '" class="btn btn-danger remove-me" >-</button></span></div></div>';
+        var removeButton = $(removeBtn);
+        $(addto).parent().parent().after(newInput);
+        $(addRemove).after(removeButton);
+        $("#field" + next).attr('data-source',$(addto).attr('data-source'));
+        $("#count").val(next);  
+    
+        $('.remove-me').click( function(e){
+            e.preventDefault();
+            var fieldNum = this.id.charAt(this.id.length-1);
+            var fieldID = "#field" + fieldNum;
+            $(this).remove();
+            $(fieldID).remove();
+        });
+    });
+    
+
+    
+});
+*/
+
+</script>
+
+{% endblock %}
