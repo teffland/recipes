@@ -13,6 +13,7 @@ from models.categories_recipes import categories_recipes
 from models.category import Category
 from models.ingredients_recipes import IngredientRecipe
 from models.comment import Comment
+from models.photo import Photo
 import math
 from psycopg2.extensions import adapt
 
@@ -46,13 +47,12 @@ class Recipe(object):
         return '<Recipe id=%s:name=%r>' % (self.id,self.name)
 
     @classmethod
-    def load_recipes(cls, current_user, limit=12, page=1, order_by='created_at DESC', join=[], where=[]):
+    def load_recipes(cls, current_user, limit=8, page=1, order_by='created_at DESC', join=[], where=[]):
         attributes = ['id','name','servings','preparation_time','photo_file','created_at','creator_id']
-        
         if page == 1:
             offset = ''
         else:
-            offset = 'OFFSET %s' % adapt(str(limit * (page-1))).getquoted()
+            offset = 'OFFSET %s' % adapt(str(limit * (page-1))).getquoted()[1:-1]
 
         join_sql = ''
         if len(join) > 0:
@@ -163,17 +163,116 @@ class Recipe(object):
 
         return recipe
 
-    @classmethod
-    def insert_recipe(cls, recipe):
-        recipe['created_at'] = BaseModel.timestamp_to_db(datetime.datetime.now())
-        recipe['photo_file'] = download_photo(recipe['photo'])
+    def valid(self):
+        errors = []
 
-        engine.execute("""INSERT INTO recipes (name, servings, preparation_time, photo_file, nutritional_info, creator_id, created_at)
-                       VALUES (%(name)s, %(servings)s, %(prep)s, %(photo_file)s,
-                               %(nutri)s, %(creator)s, %(created_at)s)""", recipe)
-        recipe_id = engine.execute("SELECT id FROM recipes ORDER BY id DESC LIMIT 1;").first()[0]
-        return recipe_id
-    
+        if not self.name:
+            errors.append('recipe name cannot be blank')
+        if len(self.name) > 128:
+            errors.append('recipe name is too long')
+        if len(self.servings) > 128:
+            errors.append('servings text is too long')
+        if len(self.preparation_time) > 128:
+            errors.append('preparation time text is too long')
+        
+        if self.upload_file.filename and not Photo.allowed_file(self.upload_file):
+            errors.append('image must be .png .jpg or .jpeg')
+
+        for category_name in self.category_names:
+            if not category_name:
+                errors.append('all category names should be set')
+            if len(category_name) > 128:
+                errors.append('category name is too long')
+
+        for ingredient in self.ingredients:
+            if len(ingredient.name) == 0:
+                errors.append('ingredient name cannot be blank')
+            elif len(ingredient.name) > 128:
+                errors.append('ingredient name is too long')
+            if len(ingredient.quantity) > 128:
+                errors.append('ingredient quantity is too long')
+            if len(ingredient.unit) > 128:
+                errors.append('ingredient unit is too long')
+            if len(ingredient.comment) > 128:
+                errors.append('ingredient comment is too long')
+
+        if len(self.ingredients) == 0:
+            errors.append('must have at least one ingredient')
+
+        for step in self.steps:
+            if len(step.instructions) == 0:
+                errors.append('instructions cannot be blank')
+            elif len(step.instructions) > 500:
+                errors.append('instructions of a single step are too long')
+
+        if len(self.steps) == 0:
+            errors.append('must have at least one instruction step')
+
+        errors = list(set(errors))
+        if len(errors) > 0:
+            self.error_message = ', '.join(errors)
+        else:
+            self.error_message = ''
+
+        return (len(errors) == 0)
+
+    def save(self, existing_categories, existing_ingredients):
+        connection = engine.connect()
+        transaction = connection.begin()
+        try:
+            # upload photo
+            if not self.upload_file.filename:
+                self.photo_file = Photo.DEFAULT_IMAGE
+            else:
+                self.photo_file = Photo.upload_photo(self.upload_file)
+
+            connection.execute("""
+                INSERT INTO recipes (name, servings, preparation_time, nutritional_info, photo_file, creator_id, created_at)
+                VALUES (%s,%s,%s,%s,%s,%s,%s)""", 
+                (self.name,
+                self.servings,
+                self.preparation_time,
+                self.nutritional_info,
+                self.photo_file,
+                self.creator_id,
+                BaseModel.timestamp_to_db(datetime.datetime.now())
+                ))
+
+            # get recipe_id
+            results = connection.execute("SELECT id FROM recipes ORDER BY id DESC LIMIT 1;")
+            recipe_id = None
+            for result in results:
+                recipe_id = result[0]
+            
+            # create categories
+            for category_name in self.category_names:
+                if category_name not in existing_categories:
+                    connection.execute("INSERT INTO categories (name) VALUES (%s)", category_name)
+                connection.execute("INSERT INTO categories_recipes (recipe_id, category_name) VALUES (%s,%s)", (recipe_id, category_name))
+
+            # create ingredients
+            for ingredient in self.ingredients:
+                if ingredient.name not in existing_ingredients:
+                    connection.execute("INSERT INTO ingredients (name) VALUES (%s)", ingredient.name)
+                connection.execute("""
+                    INSERT INTO ingredients_recipes (ingredient_name, recipe_id, quantity, unit, comment)
+                    VALUES (%s,%s,%s,%s,%s)""", (ingredient.name, recipe_id, ingredient.quantity, ingredient.unit, ingredient.comment))
+
+            # create steps
+            for step in self.steps:
+                connection.execute("""
+                    INSERT INTO steps (recipe_id, number, instructions)
+                    VALUES (%s,%s,%s)""", (recipe_id, step.number, step.instructions))
+
+            transaction.commit()
+        except Exception as e:
+            transaction.rollback()
+            self.error_message = e.message
+            return False
+
+        return True
+
+
 
 def before_insert_listener(mapper, connection, target):
     target.created_at = datetime.datetime.now()

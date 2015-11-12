@@ -1,8 +1,8 @@
 {% extends "layout.html" %}
 {% block body %}
   <div class="row">  
-    <div class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
-      <h2>
+    <div class="col-xs-12 col-sm-6 col-md-4 col-lg-4 left-recipe-column">
+      <h2 class='no-margin-top'>
         {{recipe.name}}
         <span class="glyphicon glyphicon-heart{{ '-empty' if not recipe.is_favorite else '' }} favorite-icon-detail" aria-hidden="true" favorite-link="{{url_for('favorite', recipe_id=recipe.id)}}" unfavorite-link="{{url_for('unfavorite', recipe_id=recipe.id)}}"></span>
       </h2>
@@ -16,7 +16,7 @@
             <span class="glyphicon glyphicon-user" aria-hidden="true"></span> {{recipe.servings}}<br>
           {% endif %}
         </p>
-        <p class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+        <p class="col-xs-12 col-sm-12 col-md-6 col-lg-6 nutritional-section">
           {% if recipe.nutritional_info %} 
             <span data-toggle="tooltip" data-placement="right" data-html="false" title="{{recipe.nutritional_info}}" style="white-space: nowrap;">
               <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> Nutritional info
@@ -205,11 +205,11 @@ $(function(){
       url: $(this).attr('action'),
       data: $(this).serialize(), // serializes the form's elements.
       success: function(data) {
-          $('.last-comment-list-item').before(data)
-          $('#comment-text').val('')
-          $('.added-comment:last').slideDown(600, function() {
-            $('.added-comment:last .delete-comment-link').click(delete_comment_procedure)  
-          })
+        $('.last-comment-list-item').before(data)
+        $('#comment-text').val('')
+        $('.added-comment:last').slideDown(600, function() {
+          $('.added-comment:last .delete-comment-link').click(delete_comment_procedure)  
+        })
       }
     });
 
@@ -217,6 +217,13 @@ $(function(){
   })
 
   $('.delete-comment-link').click(delete_comment_procedure)
+
+  // set image height
+  leftColumn = $('.left-recipe-column');
+  $('.recipe-thumb').css({ 
+    maxHeight: (leftColumn.innerHeight() - parseInt(leftColumn.children().last().css('margin-bottom').slice(0,2)) - 1).toString()
+      + 'px'
+  });
 
 });
 </script>

@@ -75,6 +75,15 @@ class User(object):
             setattr(obj,attr,val)
         return obj
 
+    @classmethod
+    def update(cls, user_id, attrs):
+        if 'hashed_password' in attrs:
+            engine.execute("UPDATE users SET first_name=%s, last_name=%s, hashed_password=%s WHERE id=%s", 
+                (attrs['first_name'], attrs['last_name'], attrs['hashed_password'], user_id))
+        else:
+            engine.execute("UPDATE users SET first_name=%s, last_name=%s WHERE id=%s", 
+                (attrs['first_name'], attrs['last_name'], user_id))
+
     def name(self):
         return self.first_name + ' ' + self.last_name
 

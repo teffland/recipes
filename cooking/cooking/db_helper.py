@@ -3,6 +3,7 @@ from contextlib import closing
 from cooking import app
 from cooking.config import Config
 import random
+from datetime import datetime, timedelta
 
 # function to connect to db
 def db_connect():
@@ -28,6 +29,8 @@ from models.saved import Saved
 from models.category import Category
 from models.ingredient import Ingredient
 from models.ingredients_recipes import IngredientRecipe
+from models.photo import Photo
+from models.base_model import BaseModel
 from cooking.orm_setup import db_session, engine
 
 def db_seed():    
@@ -76,7 +79,6 @@ def db_seed():
     db_session.add(comment)
     db_session.commit()
 
-
     db_session.close()
 
 def db_seed2():
@@ -86,26 +88,6 @@ def db_seed2():
         db_connection.commit()
         db_connection.close()
 
-from datetime import datetime, timedelta
-def format_timestamp(date):
-    TIMESTAMP_FORMAT = '%Y-%m-%d %H:%M:%S'
-    return datetime.strftime(date, TIMESTAMP_FORMAT)
-
-from hashlib import sha384
-import urllib
-def download_photo(url):
-    try:
-        photo_hash = sha384(url).digest().encode('base64')[0:-1]
-        #print photo_hash.replace
-        localname = photo_hash.replace('/', '-')+".jpg"
-        print localname
-        urllib.urlretrieve(url, Config.PHOTO_DIR+localname)
-        return localname
-    except:
-    #    print "\t NO PHOTO"
-        return "default.jpg"
-
-import numpy as np
 def get_random_nutritional_info():
     options = ["Eh it's not too good.",
                "This thing is a super food!",
@@ -113,8 +95,7 @@ def get_random_nutritional_info():
                "Pretty average I guess.",
                "Freakin awesome!"
               ]
-    choice = int(np.floor(np.random.rand()*len(options)))
-    return options[choice] + " (NOTE: This was randomly generated)"
+    return (random.sample(options, 1)[0] + " (NOTE: This was randomly generated)")
 
 def get_comments(count=1):
     options = ["Too much hassle.",
@@ -143,6 +124,11 @@ def get_comments(count=1):
     random.shuffle(comments)
     return comments
 
+def first_lower(s):
+    if len(s) == 0:
+        return s
+    return s[0].lower() + s[1:]
+
 import json
 def db_seed3():
     random.seed(1)
@@ -154,10 +140,10 @@ def db_seed3():
         'email' : "chef@goodfood.com",
         'first_name': "Anthony",
         'last_name': "Bourdain",
-        'hashed_password':User.hash_password("ILoveCooking"),
+        'hashed_password':User.hash_password("qwerty"),
         'icon_code':1,
-        'created_at' : format_timestamp(datetime.now()),
-        'last_login_at' : format_timestamp(datetime.now())
+        'created_at' : BaseModel.timestamp_to_db(datetime.now()),
+        'last_login_at' : BaseModel.timestamp_to_db(datetime.now())
     }
 
     cur.execute("""INSERT INTO users (email, first_name, last_name, 
@@ -193,7 +179,7 @@ def db_seed3():
 
     # load all of the ingredients
     print "INSERTING ALL INGREDIENTS"
-    unique_ingredients = list(set([i['name'] for d in data for i in d['ingredients']]))
+    unique_ingredients = list(set([first_lower(i['name']) for d in data for i in d['ingredients']]))
     ingredients = [{'name':i} for i in unique_ingredients]
     cur.executemany("""INSERT INTO ingredients (name) VALUES (%(name)s)""", ingredients)
     
@@ -205,15 +191,16 @@ def db_seed3():
 
     # for each recipe, load it, get its id, then load its steps, ingredients, and categories
     recipe_ids = []
-    for r in data:
+    recipe_count = len(data)
+    for j,r in enumerate(data):
         recipe = {
-            'name':r['name'],
-            'servings':r['yield'],
-            'preparation_time':r['preparation_time'],
-            'photo_file':download_photo(r['photo_url']),
-            'nutritional_info':r['description'],#get_random_nutritional_info(),
-            'creator_id':user_id,
-            'created_at':format_timestamp(datetime.now())
+            'name': r['name'],
+            'servings': r['yield'],
+            'preparation_time': r['preparation_time'],
+            'photo_file': Photo.download_photo(r['photo_url']),
+            'nutritional_info': r['description'],#get_random_nutritional_info(),
+            'creator_id': user_id,
+            'created_at': BaseModel.timestamp_to_db(datetime.now() - timedelta(minutes=(recipe_count - j)))
         }
         cur.execute("""INSERT INTO recipes (name, servings, preparation_time, photo_file, nutritional_info, creator_id, created_at)
                        VALUES (%(name)s, %(servings)s, %(preparation_time)s, %(photo_file)s,
@@ -231,7 +218,7 @@ def db_seed3():
         cur.executemany("""INSERT INTO steps (recipe_id, number, instructions)
                            VALUES (%(id)s, %(n)s, %(instructions)s)""", steps)
 
-        ingredients = [{'name':i['name'], 'id':recipe_id, 'q':i['quantity'], 'u':i['unit'],\
+        ingredients = [{'name':first_lower(i['name']), 'id':recipe_id, 'q':i['quantity'], 'u':i['unit'],\
                         'comment':i['comment']} for i in r['ingredients'] ]
         cur.executemany("""INSERT INTO ingredients_recipes (ingredient_name, recipe_id, quantity, unit, comment)
                            VALUES (%(name)s, %(id)s, %(q)s, %(u)s, %(comment)s)""", ingredients)
@@ -266,7 +253,7 @@ def db_seed3():
                     engine.execute("INSERT INTO saved (user_id, recipe_id, saved_at) VALUES (%s,%s,%s)", (
                         ruid,
                         recipe_id,
-                        format_timestamp(datetime.now())
+                        BaseModel.timestamp_to_db(datetime.now())
                     ))
 
             # select how many users are going to comment (max is rating count)
@@ -280,8 +267,8 @@ def db_seed3():
             for i, cuid in enumerate(comment_user_ids):
                 engine.execute("INSERT INTO comments (user_id, recipe_id, text, created_at, updated_at) VALUES (%s,%s,%s,%s,%s)", 
                     (cuid, recipe_id, comments[i], 
-                        format_timestamp(datetime.now()-timedelta(minutes=(comment_count - i))), 
-                        format_timestamp(datetime.now()-timedelta(minutes=(comment_count - i)))
+                        BaseModel.timestamp_to_db(datetime.now()-timedelta(minutes=(comment_count - i))), 
+                        BaseModel.timestamp_to_db(datetime.now()-timedelta(minutes=(comment_count - i)))
                     ))
     
 

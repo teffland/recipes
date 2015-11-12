@@ -3,10 +3,16 @@
 <title>Cooking @ Columbia</title>
 <head>
   <link href="/static/css/bootstrap.min.css" rel="stylesheet" media="screen">
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
   <link href="/static/css/layout.css" rel="stylesheet" media="screen">
   <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
-  <script src="/static/js/bootstrap.min.js"></script>
   <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+  <script>
+    /*** Handle jQuery plugin naming conflict between jQuery UI and Bootstrap ***/
+    $.widget.bridge('uibutton', $.ui.button);
+    $.widget.bridge('uitooltip', $.ui.tooltip);
+  </script>
+  <script src="/static/js/bootstrap.min.js"></script>
 </head>
 <body>
   <header>
@@ -30,24 +36,22 @@
             <li {% if request.endpoint == 'recent_recipes' %} class='active' {% endif %}>
                 <a href="{{ url_for('recent_recipes') }}">New Recipes</a>
             </li>
-        </ul>
-        <ul class="nav navbar-nav">
             <li {% if request.endpoint == 'highest_rated_recipes' %} class='active' {% endif %}>
                 <a href="{{ url_for('highest_rated_recipes') }}">Highest Rated</a>
+            </li>
+            <li {% if request.endpoint == 'favorites' %} class='active' {% endif %}>
+                <a href="{{ url_for('favorites') }}"><span class="glyphicon glyphicon-heart" aria-hidden="true"></span> Favorites</a>
             </li>
         </ul>
         <ul class="navbar-form navbar-left" role="search">
           <div class="form-group">
-            <input type="text" class="form-control" placeholder="Search" id='search-input' value="{{ search_string if search_string else '' }}">
+            <input type="search" class="form-control" placeholder="Search" id='search-input' value="{{ search_string if search_string else '' }}">
           </div>
           <button type="submit" class="btn btn-default" id='search-button' url="{{ url_for('search_results',query='<query>') }}">Search</button>
         </ul>
         <ul class="nav navbar-nav pull-right">
             <li {% if request.endpoint == 'create_recipe' %} class='active' {% endif %}>
                 <a href="{{ url_for('create_recipe') }}">Create Recipe</a>
-            </li>
-            <li {% if request.endpoint == 'favorites' %} class='active' {% endif %}>
-                <a href="{{ url_for('favorites') }}"><span class="glyphicon glyphicon-heart" aria-hidden="true"></span>Favorites</a>
             </li>
             <li {% if request.endpoint == 'account' %} class='active' {% endif %}>
                 <a href="{{ url_for('account') }}">Account</a>
@@ -92,20 +96,24 @@
 <script type="text/javascript">
 $(function() {
 
-  $('#search-input').keyup(function (event) {
-    if (event.keyCode == 13) {
-      url_base = $('#search-button').attr('url')
-      query = $(this).val().split(' ').join('+')
+  function submitSearch(inputField) {
+    url_base = $('#search-button').attr('url')
+    query = $(inputField).val().split(' ').join('+')
+    if ($.trim(query).length > 0) {
       new_url = url_base.replace('%3Cquery%3E', query)
       window.location = new_url;
     }
+  }
+
+  $('#search-input').keyup(function(event) {
+    if (event.keyCode == 13) {
+      submitSearch(this);
+    }
+    event.preventDefault()
   });
 
   $('#search-button').click(function() {
-    url_base = $(this).attr('url')
-    query = $('#search-input').val().split(' ').join('+')
-    new_url = url_base.replace('%3Cquery%3E', query)
-    window.location = new_url;
+    submitSearch(this);
   });
 });
 </script>

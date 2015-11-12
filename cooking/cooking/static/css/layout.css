@@ -1,6 +1,3 @@
-body {
-    background-color:#ddd;
-}
 header {
   background: #020031; /* Old browsers */
   background: -moz-linear-gradient(left,  #020031 0%, #6d3353 100%); /* FF3.6+ */
@@ -44,10 +41,15 @@ a.nounderline {
   margin-right: -6px;
 }
 
+.img-rounded, .thumbnail {
+    border-radius: 22px;
+}
+
 .favorite-icon {
-  top:-12px;
-  right:-14px;
-  font-size: 20pt;
+  position: absolute;
+  top:-9px;
+  right:2px;
+  font-size: 26pt;
 }
 
 .favorite-icon-detail.glyphicon-heart-empty {
@@ -58,17 +60,24 @@ a.nounderline {
   cursor:pointer;
 }
 
+h2.no-margin-top {
+  margin-top: 0px;
+}
+
 .rate-star:hover {
   cursor:pointer;
 }
 
-img.recipes-thumb {
-  width:100%;
-  height:200px;;
-}
 img.recipe-thumb {
-  width:100%;
+  max-height: 200px;
+  border-radius: 22px;
 }
+
+img.recipes-thumb {
+  max-height: 200px;
+  border-radius: 22px;
+}
+
 .delete-comment-link:hover {
   cursor:pointer;
   color:#F33; 
@@ -82,10 +91,18 @@ img.recipe-thumb {
   color:rgba(255, 255, 255, 0);
 }
 
-.tooltip-inner {
+.nutritional-section .tooltip-inner {
     max-width: 350px;
     /* If max-width does not work, try using width instead */
-    width: 350px; 
+    width: 350px;
+}
+
+.prep {
+  padding-bottom: 7px
+}
+
+.servings {
+  padding-bottom: 7px;
 }
 
 .affix-top {
@@ -102,19 +119,52 @@ img.recipe-thumb {
 }
 
 .label-new-mine {
-  line-height: 1.4
+  line-height: 1.4;
+  border-radius: 0.5em;
 }
 
 .label-mine {
   margin-top: 2px
 }
 
-#field>input {
-    width:90%;
+.remove-ingredient-wrapper, .add-ingredient-wrapper {
+  text-align: center;
+  display: table-cell; 
+  vertical-align: middle;
 }
 
-textarea {
-    width:90%;
+.remove-ingredient {
+  font-size: 23pt;
+  color: #c33;
+}
+
+.add-ingredient {
+  font-size: 23pt;
+  color: #3c3; 
+}
+
+.add-ingredient:hover, .remove-ingredient:hover {
+  cursor: pointer;
+}
+
+.remove-step-wrapper, .add-step-wrapper {
+  text-align: center;
+  display: table-cell; 
+  vertical-align: middle;
+}
+
+.remove-step {
+  font-size: 23pt;
+  color: #c33;
+}
+
+.add-step {
+  font-size: 23pt;
+  color: #3c3; 
+}
+
+.add-step:hover, .remove-step:hover {
+  cursor: pointer;
 }
 
 .ui-widget{

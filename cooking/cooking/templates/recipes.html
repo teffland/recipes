@@ -9,7 +9,7 @@
           {% else %}
             <span class="glyphicon glyphicon-heart-empty pull-right favorite-icon unfavorited" aria-hidden="true" favorite-link="{{url_for('favorite', recipe_id=recipe.id)}}" unfavorite-link="{{url_for('unfavorite', recipe_id=recipe.id)}}"></span>
           {% endif %}
-          <img class="recipes-thumb" src="/static/photos/{{recipe.photo_file}}">
+          <img class="recipes-thumb img-rounded" src="/static/photos/{{recipe.photo_file}}">
           <div class="caption">
             <h4>{{recipe.name | trim}}</h4>
             {% if recipe.preparation_time | trim | length > 0 %} 
@@ -17,7 +17,6 @@
               <span class="glyphicon glyphicon-time" aria-hidden="true"></span> {{recipe.preparation_time | trim}}<br>
               </div>
             {% endif %}
-            <br>
             {% if recipe.servings | trim | length > 0 %} 
               <div class="servings">
               <span class="glyphicon glyphicon-user" aria-hidden="true"></span> {{recipe.servings | trim}}<br>
@@ -43,17 +42,19 @@
       </div>
    {% endfor %}
   </div>
-  <div class="row">
-    <nav class="col-xs-12 text-center">
-      <ul class="pagination">
-        <li class="{% if page == 1 %} disabled {% endif %}"><a href="{{url_for(request.endpoint, page=(page-1), **current_query_params)}}" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>
-        {% for i in range(1,page_count+1) %}
-          <li class="{% if page == i %} active {% endif %}"><a href="{{url_for(request.endpoint, page=i, **current_query_params)}}">{{i}}</a></li>
-        {% endfor %}
-        <li class="{% if page == page_count %} disabled {% endif %}"><a href="{{url_for(request.endpoint, page=page_count, **current_query_params)}}" aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>
-      </ul>
-    </nav>
-  </div>
+  {% if recipes | length > 0 %}
+    <div class="row">
+      <nav class="col-xs-12 text-center">
+        <ul class="pagination">
+          <li class="{% if page == 1 %} disabled {% endif %}"><a href="{{url_for(request.endpoint, page=(page-1), **current_query_params)}}" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>
+          {% for i in range(1,page_count+1) %}
+            <li class="{% if page == i %} active {% endif %}"><a href="{{url_for(request.endpoint, page=i, **current_query_params)}}">{{i}}</a></li>
+          {% endfor %}
+          <li class="{% if page == page_count %} disabled {% endif %}"><a href="{{url_for(request.endpoint, page=(page+1), **current_query_params)}}" aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>
+        </ul>
+      </nav>
+    </div>
+  {% endif %}
 
 <script>
 $(function(){
@@ -108,8 +109,6 @@ function expandHeights(selector){
     });
 }
 
-//expandHeights('.recipe-panel>a>div.caption>h4');
-//expandHeights('.prep');
 expandHeights('.recipe-panel');
     
 </script>
