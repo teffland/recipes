@@ -1,6 +1,3 @@
-from sqlalchemy.types import *
-from sqlalchemy import Table, Column, event, ForeignKey
-from sqlalchemy.orm import mapper, relationship, backref
 from cooking.orm_setup import metadata, db_session, engine
 import datetime
 from models.base_model import BaseModel
@@ -73,21 +70,4 @@ class Comment(object):
     def __repr__(self):
         return '<Comment id=%i:user_id=%i:recipe_id=%i>' % (self.id,self.user_id,self.recipe_id)
 
-def before_insert_listener(mapper, connection, target):
-    target.created_at = datetime.datetime.now()
-    target.updated_at = datetime.datetime.now() 
-event.listen(Comment, 'before_insert', before_insert_listener)
 
-def before_update_listener(mapper, connection, target):
-    target.updated_at = datetime.datetime.now() 
-event.listen(Comment, 'before_update', before_update_listener)
-
-comments = Table('comments', metadata,
-    Column('id', INTEGER, primary_key=True),
-    Column('user_id', INTEGER, ForeignKey('users.id', ondelete="CASCADE")),
-    Column('recipe_id', INTEGER, ForeignKey('recipes.id', ondelete="CASCADE")),
-    Column('text', TEXT),
-    Column('created_at', TIMESTAMP),
-    Column('updated_at', TIMESTAMP)
-)
-mapper(Comment, comments)

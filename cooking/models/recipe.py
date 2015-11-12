@@ -1,15 +1,11 @@
-from sqlalchemy.types import *
-from sqlalchemy import Table, Column, event, ForeignKey
-from sqlalchemy.orm import mapper, relationship, backref
 from cooking.orm_setup import metadata, db_session, engine
 import datetime
 from models.base_model import BaseModel
 from cooking.config import Config
 import models.user
-from models.step import Step, steps
+from models.step import Step
 from models.rating import Rating
 from models.saved import Saved
-from models.categories_recipes import categories_recipes
 from models.category import Category
 from models.ingredients_recipes import IngredientRecipe
 from models.comment import Comment
@@ -274,26 +270,4 @@ class Recipe(object):
 
 
 
-def before_insert_listener(mapper, connection, target):
-    target.created_at = datetime.datetime.now()
-event.listen(Recipe, 'before_insert', before_insert_listener)
-
-recipes = Table('recipes', metadata,
-    Column('id', INTEGER, primary_key=True),
-    Column('name', VARCHAR(128)),
-    Column('servings', VARCHAR(128)),
-    Column('preparation_time', VARCHAR(128)),
-    Column('nutritional_info', TEXT),
-    Column('photo_file', TEXT),
-    Column('creator_id', INTEGER, ForeignKey('users.id', ondelete="CASCADE")),
-    Column('created_at', TIMESTAMP)
-)
-mapper(Recipe, recipes, properties={
-    'steps' : relationship(Step, backref='recipe', order_by=steps.c.number),
-    'ratings': relationship(Rating, backref='recipe'),
-    'saves': relationship(Saved, backref='recipe'),
-    'categories': relationship(Category, backref='recipes', secondary=categories_recipes),
-    'ingredients_recipes': relationship(IngredientRecipe, backref='recipe'),
-    'comments': relationship(Comment, backref='recipe')
-})
 

@@ -1,6 +1,3 @@
-from sqlalchemy.types import *
-from sqlalchemy import Table, Column, PrimaryKeyConstraint, ForeignKey
-from sqlalchemy.orm import mapper
 from cooking.orm_setup import metadata, db_session, engine
 
 class IngredientRecipe(object):
@@ -54,12 +51,3 @@ class IngredientRecipe(object):
         engine.execute("""INSERT INTO ingredients_recipes (ingredient_name, recipe_id, quantity, unit, comment)
                            VALUES (%(ingredient)s, %(recipe_id)s, %(quantity)s, %(unit)s, %(comment)s)""", data)
 
-ingredients_recipes = Table('ingredients_recipes', metadata,
-    Column('ingredient_name', VARCHAR(128), ForeignKey('ingredients.name', ondelete="CASCADE")),
-    Column('recipe_id', INTEGER, ForeignKey('recipes.id', ondelete="CASCADE")),
-    Column('quantity', VARCHAR(256)),
-    Column('unit', VARCHAR(256)),
-    Column('comment', VARCHAR(256)),
-    PrimaryKeyConstraint('ingredient_name', 'recipe_id')
-)
-mapper(IngredientRecipe, ingredients_recipes)

@@ -1,6 +1,3 @@
-from sqlalchemy.types import *
-from sqlalchemy import Table, Column, event, PrimaryKeyConstraint, ForeignKey
-from sqlalchemy.orm import mapper, relationship, backref
 from cooking.orm_setup import metadata, db_session, engine
 import datetime
 
@@ -38,11 +35,4 @@ class Step(object):
                            VALUES (%(rid)s, %(n)s, %(text)s)""", data)
 
 
-steps = Table('steps', metadata,
-    Column('recipe_id', INTEGER, ForeignKey('recipes.id', ondelete="CASCADE")),
-    Column('number', SMALLINT),
-    Column('instructions', TEXT),
-    PrimaryKeyConstraint('recipe_id', 'number')
-)
-mapper(Step, steps)
 

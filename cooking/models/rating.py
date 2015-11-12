@@ -1,6 +1,3 @@
-from sqlalchemy.types import *
-from sqlalchemy import Table, Column, event, PrimaryKeyConstraint, ForeignKey
-from sqlalchemy.orm import mapper, relationship, backref
 from cooking.orm_setup import metadata, db_session, engine
 from collections import defaultdict
 from psycopg2.extensions import adapt
@@ -40,11 +37,3 @@ class Rating(object):
         else:
             engine.execute("INSERT INTO ratings (user_id, recipe_id, rating) VALUES (%s,%s,%s)", (user_id, recipe_id, int(rating)))
 
-
-ratings = Table('ratings', metadata,
-    Column('user_id', INTEGER, ForeignKey('users.id', ondelete="CASCADE")),
-    Column('recipe_id', INTEGER, ForeignKey('recipes.id', ondelete="CASCADE")),
-    Column('rating', SmallInteger),
-    PrimaryKeyConstraint('user_id', 'recipe_id')
-)
-mapper(Rating, ratings)

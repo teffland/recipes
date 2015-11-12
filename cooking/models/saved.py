@@ -1,6 +1,3 @@
-from sqlalchemy.types import *
-from sqlalchemy import Table, Column, event, PrimaryKeyConstraint, ForeignKey
-from sqlalchemy.orm import mapper, relationship, backref
 from cooking.orm_setup import metadata, db_session, engine
 import datetime
 from models.base_model import BaseModel
@@ -41,15 +38,3 @@ class Saved(object):
             long(recipe_id)
         ))
 
-def before_insert_listener(mapper, connection, target):
-    target.saved_at = datetime.datetime.now()
-event.listen(Saved, 'before_insert', before_insert_listener)
-
-
-saved = Table('saved', metadata,
-    Column('user_id', INTEGER, ForeignKey('users.id', ondelete="CASCADE")),
-    Column('recipe_id', INTEGER, ForeignKey('recipes.id', ondelete="CASCADE")),
-    Column('saved_at', TIMESTAMP),
-    PrimaryKeyConstraint('user_id', 'recipe_id')
-)
-mapper(Saved, saved)

@@ -1,6 +1,3 @@
-from sqlalchemy.types import *
-from sqlalchemy import Table, Column
-from sqlalchemy.orm import mapper
 from cooking.orm_setup import metadata, db_session, engine
 import datetime
 
@@ -42,10 +39,5 @@ class Category(object):
         d = {'name':name}
         engine.execute("INSERT INTO categories (name) VALUES %(name)s", d)
 
-categories = Table('categories', metadata,
-    Column('name', VARCHAR(128), primary_key=True),
-    Column('description', TEXT)
-)
-mapper(Category, categories)
 
 
